@@ -8,8 +8,6 @@ import org.ethereum.core.ImportResult;
 import org.ethereum.db.BlockInformation;
 import org.ethereum.db.BlockStore;
 
-
-import java.io.File;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -74,7 +72,6 @@ public class SnappyMetrics {
                 System.out.println("You are measuring write");
 
                 for (int i = 0; i < times; i++){
-                    System.out.println("Time: " + i);
                     totalTime += measureSnappyWrites();
                 }
                 deleter.deleteFile("/home/julian/.rsk/snappy-dummy-test");
@@ -89,7 +86,6 @@ public class SnappyMetrics {
             } else {
                 System.out.println("You are measuring write");
                 for (int i = 0; i < times; i++){
-                    System.out.println("Time: " + i);
                     totalTime += measureNormalWrites();
                 }
                 deleter.deleteFile("/home/julian/.rsk/normal-dummy-test");
@@ -106,7 +102,6 @@ public class SnappyMetrics {
 
         for (int i = 0; i < VALUES_TO_GENERATE; i++) {
             Block normalBlock = blockchain.getChainBlockByNumber(normalBlockNumber++);
-            System.out.println("Writing block number: " + normalBlockNumber);
             long saveTime = System.nanoTime();
             ImportResult result = normalDummyBlockchain.tryToConnect(normalBlock);
             normalTime += System.nanoTime() - saveTime;
@@ -125,8 +120,6 @@ public class SnappyMetrics {
 
         for (int i = 0; i < VALUES_TO_GENERATE; i++) {
             Block snappyBlock = blockchainWithSnappy.getChainBlockByNumber(snappyBlockNumber++);
-
-            System.out.println("Writing block number: " + snappyBlockNumber);
             long saveTimeSnappy = System.nanoTime();
             ImportResult result = snappyDummyBlockchain.tryToConnect(snappyBlock);
             snappyTime += System.nanoTime() - saveTimeSnappy;
