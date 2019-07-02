@@ -52,6 +52,7 @@ public class LevelDbDataSource implements KeyValueDataSource {
 
     private final String databaseDir;
     private final String name;
+    private final boolean useSnappy;
     private DB db;
     private boolean alive;
 
@@ -63,9 +64,10 @@ public class LevelDbDataSource implements KeyValueDataSource {
     // however blocks them on init/close/delete operations
     private ReadWriteLock resetDbLock = new ReentrantReadWriteLock();
 
-    public LevelDbDataSource(String name, String databaseDir) {
+    public LevelDbDataSource(String name, String databaseDir, boolean useSnappy) {
         this.databaseDir = databaseDir;
         this.name = name;
+        this.useSnappy = useSnappy;
         logger.debug("New LevelDbDataSource: {}", name);
     }
 
@@ -150,7 +152,7 @@ public class LevelDbDataSource implements KeyValueDataSource {
             try {
                 byte[] ret = db.get(key);
 
-                if (ret != null) {
+                if (ret != null && useSnappy) {
                     ret = Snappy.uncompress(ret);
                 }
 
@@ -163,7 +165,7 @@ public class LevelDbDataSource implements KeyValueDataSource {
             } catch (DBException e) {
                 logger.error("Exception. Retrying again...", e);
                 try {
-                    byte[] ret = Snappy.uncompress(db.get(key));
+                    byte[] ret =  useSnappy ? Snappy.uncompress(db.get(key)) : db.get(key);
                     if (logger.isTraceEnabled()) {
                         logger.trace("<~ LevelDbDataSource.get(): {}, key: {}, return length: {}", name, Hex.toHexString(key), (ret == null ? "null" : ret.length));
                     }
@@ -202,7 +204,11 @@ public class LevelDbDataSource implements KeyValueDataSource {
             }
 
             try {
-                db.put(key, Snappy.compress(value));
+                if (useSnappy) {
+                    db.put(key, Snappy.compress(value));
+                } else {
+                    db.put(key, value);
+                }
             } catch (IOException e) {
                 logger.error("Unexpected", e);
                 panicProcessor.panic("Snappy", String.format("Unexpected %s", e.getMessage()));
@@ -279,7 +285,11 @@ public class LevelDbDataSource implements KeyValueDataSource {
         // Note that this is not atomic.
         try (WriteBatch batch = db.createWriteBatch()) {
             for (Map.Entry<ByteArrayWrapper, byte[]> entry : rows.entrySet()) {
-                batch.put(entry.getKey().getData(), Snappy.compress(entry.getValue()));
+                if (useSnappy) {
+                    batch.put(entry.getKey().getData(), Snappy.compress(entry.getValue()));
+                } else {
+                    batch.put(entry.getKey().getData(), entry.getValue());
+                }
             }
             for (ByteArrayWrapper deleteKey : deleteKeys) {
                 batch.delete(deleteKey.getData());

@@ -35,7 +35,7 @@ import java.util.HashMap;
  */
 public class RskTestContext extends RskContext {
     public RskTestContext(String[] args) {
-        super(args);
+        super(args, false);
     }
 
     @Override

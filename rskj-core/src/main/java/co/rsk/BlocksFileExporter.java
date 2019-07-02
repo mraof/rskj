@@ -66,7 +66,7 @@ public class BlocksFileExporter {
         }
 
         String[] nodeCliArgs = Arrays.copyOf(args, args.length - 1);
-        RskContext objects = new RskContext(nodeCliArgs);
+        RskContext objects = new RskContext(nodeCliArgs, false);
         BlocksFileExporter bplayer = new BlocksFileExporter(args[args.length - 1], objects);
         bplayer.exportBlocks();
         System.exit(0);

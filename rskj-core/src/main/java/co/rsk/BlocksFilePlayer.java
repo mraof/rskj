@@ -92,7 +92,7 @@ public class BlocksFilePlayer {
 
 
         String[] nodeCliArgs = Arrays.copyOf(args, args.length - 1);
-        RskContext objects = new RskContext(nodeCliArgs);
+        RskContext objects = new RskContext(nodeCliArgs, false);
         BlocksFilePlayer bplayer = new BlocksFilePlayer(args[args.length - 1], objects);
         bplayer.connectBlocks();
         System.exit(0);

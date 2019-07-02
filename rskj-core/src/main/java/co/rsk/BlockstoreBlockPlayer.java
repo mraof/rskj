@@ -42,7 +42,7 @@ public class BlockstoreBlockPlayer {
     }
 
     private void connectBlocks() {
-        BlockStore sourceBlockStore = RskContext.buildBlockStore(blockFactory, sourceDir);
+        BlockStore sourceBlockStore = RskContext.buildBlockStore(blockFactory, sourceDir, false);
         for (Block block = nextBlock(sourceBlockStore); block != null; block = nextBlock(sourceBlockStore)) {
             if (!connectBlock(block)) {
                 System.err.printf("Import failed at block %s\n", block.getNumber());
@@ -75,7 +75,7 @@ public class BlockstoreBlockPlayer {
         }
 
         String[] nodeCliArgs = Arrays.copyOf(args, args.length - 1);
-        RskContext objects = new RskContext(nodeCliArgs);
+        RskContext objects = new RskContext(nodeCliArgs, false);
         BlockstoreBlockPlayer bplayer = new BlockstoreBlockPlayer(args[args.length - 1], objects);
         bplayer.connectBlocks();
         System.exit(0);

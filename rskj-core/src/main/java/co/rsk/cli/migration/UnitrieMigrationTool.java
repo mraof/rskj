@@ -78,10 +78,10 @@ public class UnitrieMigrationTool {
         this.stateRootHandler = stateRootHandler;
         this.trieConverter = trieConverter;
 
-        this.orchidContractDetailsDataStore = RskContext.makeDataSource("details", databaseDir);
-        this.orchidContractsStorage = RskContext.makeDataSource("contracts-storage", databaseDir);
+        this.orchidContractDetailsDataStore = RskContext.makeDataSource("details", databaseDir, false);
+        this.orchidContractsStorage = RskContext.makeDataSource("contracts-storage", databaseDir, false);
         this.orchidContractsTrieStore = new CachedTrieStore(new TrieStoreImpl(orchidContractsStorage));
-        this.orchidAccountsTrieStore = new CachedTrieStore(new TrieStoreImpl(RskContext.makeDataSource("state", databaseDir)));
+        this.orchidAccountsTrieStore = new CachedTrieStore(new TrieStoreImpl(RskContext.makeDataSource("state", databaseDir, false)));
         this.keccak256Cache = new HashMap<>();
         this.addressHashes = orchidContractDetailsDataStore.keys().stream()
                 .filter(accountAddress -> accountAddress.length == 20)
@@ -310,7 +310,7 @@ public class UnitrieMigrationTool {
         // picco-fix (ref: co.rsk.db.ContractStorageStoreFactory#getTrieStore)
         TrieStore contractTrieStore = contractStoreCache.computeIfAbsent(
                 contractAddress,
-                address -> new CachedTrieStore(new TrieStoreImpl(RskContext.makeDataSource("details-storage/" + address, databaseDir)))
+                address -> new CachedTrieStore(new TrieStoreImpl(RskContext.makeDataSource("details-storage/" + address, databaseDir, false)))
         );
         contractStorageTrie = contractTrieStore.retrieve(root);
         if (contractStorageTrie == null) {

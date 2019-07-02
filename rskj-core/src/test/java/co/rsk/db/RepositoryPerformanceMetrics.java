@@ -150,7 +150,7 @@ public class RepositoryPerformanceMetrics {
     static byte[] empty = new byte[]{};
 
     public void testEmptyPuts() {
-        LevelDbDataSource  ds = new LevelDbDataSource("test-storage-rows",config.databaseDir());
+        LevelDbDataSource  ds = new LevelDbDataSource("test-storage-rows",config.databaseDir(), false);
         ds.init();
 
         Set<byte[]> keysOrigin = ds.keys();
@@ -165,7 +165,7 @@ public class RepositoryPerformanceMetrics {
     }
 
     public void testZeroArrayPuts() {
-        LevelDbDataSource  ds = new LevelDbDataSource("test-storage-rows",config.databaseDir());
+        LevelDbDataSource  ds = new LevelDbDataSource("test-storage-rows",config.databaseDir(), false);
         ds.init();
 
         Set<byte[]> keysOrigin = ds.keys();
@@ -184,7 +184,7 @@ public class RepositoryPerformanceMetrics {
     }
 
     public void testIncludeDeletionsInBatch() {
-        LevelDbDataSource  ds = new LevelDbDataSource("test-storage-rows",config.databaseDir());
+        LevelDbDataSource  ds = new LevelDbDataSource("test-storage-rows",config.databaseDir(), false);
         ds.init();
 
         Set<byte[]> keysOrigin = ds.keys();

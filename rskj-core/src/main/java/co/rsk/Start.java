@@ -30,7 +30,7 @@ public class Start {
     private static Logger logger = LoggerFactory.getLogger("start");
 
     public static void main(String[] args) throws IOException {
-        RskContext ctx = new RskContext(args);
+        RskContext ctx = new RskContext(args, false);
         // this feature is only needed until the secondFork (TBD) network upgrade is activated.
         UnitrieMigrationTool.migrateStateToUnitrieIfNeeded(ctx);
 

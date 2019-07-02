@@ -128,6 +128,7 @@ public class RskContext implements NodeBootstrapper {
     private static Logger logger = LoggerFactory.getLogger(RskContext.class);
 
     private final CliArgs<NodeCliOptions, NodeCliFlags> cliArgs;
+    private final boolean useSnappy;
 
     private RskSystemProperties rskSystemProperties;
     private Blockchain blockchain;
@@ -204,15 +205,16 @@ public class RskContext implements NodeBootstrapper {
     private BlocksBloomStore blocksBloomStore;
     private BlockExecutor blockExecutor;
 
-    public RskContext(String[] args) {
+    public RskContext(String[] args, boolean useSnappy) {
         this(new CliArgs.Parser<>(
                 NodeCliOptions.class,
                 NodeCliFlags.class
-        ).parse(args));
+        ).parse(args), useSnappy);
     }
 
-    private RskContext(CliArgs<NodeCliOptions, NodeCliFlags> cliArgs) {
+    private RskContext(CliArgs<NodeCliOptions, NodeCliFlags> cliArgs, boolean useSnappy) {
         this.cliArgs = cliArgs;
+        this.useSnappy = useSnappy;
     }
 
     @Override
@@ -663,7 +665,7 @@ public class RskContext implements NodeBootstrapper {
     }
 
     protected ReceiptStore buildReceiptStore() {
-        KeyValueDataSource ds = makeDataSource("receipts", getRskSystemProperties().databaseDir());
+        KeyValueDataSource ds = makeDataSource("receipts", getRskSystemProperties().databaseDir(), useSnappy);
         return new ReceiptStoreImpl(ds);
     }
 
@@ -695,7 +697,7 @@ public class RskContext implements NodeBootstrapper {
         }
 
         int statesCacheSize = rskSystemProperties.getStatesCacheSize();
-        KeyValueDataSource ds = makeDataSource("unitrie", databaseDir);
+        KeyValueDataSource ds = makeDataSource("unitrie", databaseDir, useSnappy);
 
         if (statesCacheSize != 0) {
             ds = new DataSourceWithCache(ds, statesCacheSize);
@@ -705,7 +707,7 @@ public class RskContext implements NodeBootstrapper {
     }
 
     protected org.ethereum.db.BlockStore buildBlockStore() {
-        return buildBlockStore(getBlockFactory(), getRskSystemProperties().databaseDir());
+        return buildBlockStore(getBlockFactory(), getRskSystemProperties().databaseDir(), useSnappy);
     }
 
     protected RskSystemProperties buildRskSystemProperties() {
@@ -725,7 +727,7 @@ public class RskContext implements NodeBootstrapper {
     }
 
     protected StateRootHandler buildStateRootHandler() {
-        KeyValueDataSource stateRootsDB = makeDataSource("stateRoots", getRskSystemProperties().databaseDir());
+        KeyValueDataSource stateRootsDB = makeDataSource("stateRoots", getRskSystemProperties().databaseDir(), useSnappy);
         return new StateRootHandler(getRskSystemProperties().getActivationConfig(), getTrieConverter(), stateRootsDB, new HashMap<>());
     }
 
@@ -771,7 +773,7 @@ public class RskContext implements NodeBootstrapper {
             return null;
         }
 
-        KeyValueDataSource ds = makeDataSource("wallet", rskSystemProperties.databaseDir());
+        KeyValueDataSource ds = makeDataSource("wallet", rskSystemProperties.databaseDir(), useSnappy);
         return new Wallet(ds);
     }
 
@@ -1335,7 +1337,7 @@ public class RskContext implements NodeBootstrapper {
         return minerClock;
     }
 
-    public static org.ethereum.db.BlockStore buildBlockStore(BlockFactory blockFactory, String databaseDir) {
+    public static org.ethereum.db.BlockStore buildBlockStore(BlockFactory blockFactory, String databaseDir, boolean useSnappy) {
         File blockIndexDirectory = new File(databaseDir + "/blocks/");
         File dbFile = new File(blockIndexDirectory, "index");
         if (!blockIndexDirectory.exists()) {
@@ -1357,13 +1359,13 @@ public class RskContext implements NodeBootstrapper {
                 .counterEnable()
                 .makeOrGet();
 
-        KeyValueDataSource blocksDB = makeDataSource("blocks", databaseDir);
+        KeyValueDataSource blocksDB = makeDataSource("blocks", databaseDir, useSnappy);
 
         return new IndexedBlockStore(blockFactory, indexMap, blocksDB, indexDB);
     }
 
-    public static KeyValueDataSource makeDataSource(String name, String databaseDir) {
-        KeyValueDataSource ds = new LevelDbDataSource(name, databaseDir);
+    public static KeyValueDataSource makeDataSource(String name, String databaseDir, boolean useSnappy) {
+        KeyValueDataSource ds = new LevelDbDataSource(name, databaseDir, useSnappy);
         ds.init();
         return ds;
     }
