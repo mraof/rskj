@@ -212,6 +212,7 @@ task jar(type:Jar, overwrite: true, dependsOn: generateResources) {
                     'Git-Branch': currentBranch
     }
     from sourceSets.main.output.classesDirs
+    from sourceSets.test.output.classesDirs
     from sourceSets.main.output.resourcesDir
     from generatedResources
 }

@@ -18,4 +18,9 @@ public class DummyProfiler implements Profiler {
     @Override
     public void stop(Metric metric) {
     }
+
+    @Override
+    public void newBlock(long blockId, int trxQty){
+
+    }
 }
