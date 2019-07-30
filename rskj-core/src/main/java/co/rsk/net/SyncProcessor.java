@@ -44,7 +44,6 @@ public class SyncProcessor implements SyncEventsHandler {
     private final PeersInformation peerStatuses;
 
     private final Map<Long, MessageType> pendingMessages;
-    private final SyncInformationImpl syncInformation;
     private final Map<NodeID, Instant> failedPeers;
     private final SyncStateFactory factory;
     private SyncState syncState;
@@ -68,8 +67,6 @@ public class SyncProcessor implements SyncEventsHandler {
         this.channelManager = channelManager;
         this.syncConfiguration = syncConfiguration;
         this.blockFactory = blockFactory;
-        this.syncInformation = new SyncInformationImpl(blockHeaderValidationRule, blockValidationRule, difficultyCalculator);
-        this.peerStatuses = new PeersInformation(syncInformation, channelManager, syncConfiguration);
         this.pendingMessages = new LinkedHashMap<Long, MessageType>() {
             @Override
             protected boolean removeEldestEntry(Map.Entry<Long, MessageType> eldest) {
@@ -86,10 +83,10 @@ public class SyncProcessor implements SyncEventsHandler {
                 return size() > MAX_SIZE_FAILURE_RECORDS;
             }
         };
-
-        factory = new SyncStateFactory(syncConfiguration, this, syncInformation);
-        setSyncState(factory.newDecidingSyncState(peerStatuses));
-
+        this.peerStatuses = new PeersInformation(channelManager, syncConfiguration, blockchain, failedPeers, peerScoringManager);
+        factory = new SyncStateFactory(syncConfiguration, this, peerStatuses, blockSyncService,
+                blockchain, blockHeaderValidationRule, new DifficultyRule(difficultyCalculator), blockValidationRule);
+        setSyncState(factory.newDecidingSyncState());
     }
 
     public void processStatus(MessageChannel sender, Status status) {
@@ -227,8 +224,8 @@ public class SyncProcessor implements SyncEventsHandler {
     public void startSyncing(NodeID nodeID) {
         selectedPeerId = nodeID;
         logger.info("Start syncing with node {}", nodeID);
-        byte[] bestBlockHash = syncInformation.getPeerStatus(selectedPeerId).getStatus().getBestBlockHash();
-        setSyncState(factory.newCheckingBestHeaderSyncState(new Keccak256(bestBlockHash)));
+        byte[] bestBlockHash = peerStatuses.getPeer(selectedPeerId).getStatus().getBestBlockHash();
+        setSyncState(factory.newCheckingBestHeaderSyncState(selectedPeerId, new Keccak256(bestBlockHash)));
     }
 
     @Override
@@ -247,19 +244,19 @@ public class SyncProcessor implements SyncEventsHandler {
     @Override
     public void startDownloadingHeaders(Map<NodeID, List<BlockIdentifier>> skeletons, long connectionPoint) {
         setSyncState(factory.newDownloadingHeadersSyncState(consensusValidationMainchainView, skeletons,
-                connectionPoint));
+                selectedPeerId, connectionPoint));
     }
 
     @Override
     public void startDownloadingSkeleton(long connectionPoint) {
-        setSyncState(factory.newDownloadingSkeletonSyncState(peerStatuses, connectionPoint));
+        setSyncState(factory.newDownloadingSkeletonSyncState(selectedPeerId, connectionPoint));
     }
 
     @Override
     public void startFindingConnectionPoint() {
         logger.debug("Find connection point with node {}", selectedPeerId);
-        long bestBlockNumber = syncInformation.getPeerStatus(selectedPeerId).getStatus().getBestBlockNumber();
-        setSyncState(factory.newFindingConnectionPointSyncState(bestBlockNumber));
+        long bestBlockNumber = peerStatuses.getPeer(selectedPeerId).getStatus().getBestBlockNumber();
+        setSyncState(factory.newFindingConnectionPointSyncState(selectedPeerId, bestBlockNumber));
     }
 
     @Override
@@ -271,7 +268,7 @@ public class SyncProcessor implements SyncEventsHandler {
         // always that a syncing process ends unexpectedly the best block number is reset
         blockSyncService.setLastKnownBlockNumber(blockchain.getBestBlock().getNumber());
         clearOldFailureEntries();
-        setSyncState(factory.newDecidingSyncState(peerStatuses));
+        setSyncState(factory.newDecidingSyncState());
     }
 
     @Override
@@ -345,7 +342,7 @@ public class SyncProcessor implements SyncEventsHandler {
         selectedPeerId = peer.getPeerNodeID();
         peerStatuses.getOrRegisterPeer(selectedPeerId).setStatus(status);
         FindingConnectionPointSyncState newState =
-                new FindingConnectionPointSyncState(this.syncConfiguration, this, syncInformation, height);
+                new FindingConnectionPointSyncState(syncConfiguration, this, blockchain, selectedPeerId, height);
         newState.setConnectionPoint(height);
         this.syncState = newState;
     }
@@ -372,108 +369,5 @@ public class SyncProcessor implements SyncEventsHandler {
     private void removePendingMessage(long messageId, MessageType messageType) {
         pendingMessages.remove(messageId);
         logger.trace("Pending {}@{} REMOVED", messageType, messageId);
-    }
-
-    private class SyncInformationImpl implements SyncInformation {
-
-        private final DependentBlockHeaderRule blockParentValidationRule;
-        private final BlockHeaderValidationRule blockHeaderValidationRule;
-        private final BlockCompositeRule blockValidationRule;
-
-        public SyncInformationImpl(
-                BlockHeaderValidationRule blockHeaderValidationRule,
-                BlockCompositeRule blockValidationRule,
-                DifficultyCalculator difficultyCalculator) {
-            this.blockHeaderValidationRule = blockHeaderValidationRule;
-            this.blockParentValidationRule = new DifficultyRule(difficultyCalculator);
-            this.blockValidationRule = blockValidationRule;
-        }
-
-        public boolean isKnownBlock(byte[] hash) {
-            return blockchain.getBlockByHash(hash) != null;
-        }
-
-        @Override
-        public boolean hasLowerDifficulty(NodeID nodeID) {
-            Status status = getPeerStatus(nodeID).getStatus();
-            if (status == null) {
-                return false;
-            }
-
-            boolean hasTotalDifficulty = status.getTotalDifficulty() != null;
-            BlockChainStatus nodeStatus = blockchain.getStatus();
-            // this works only for testing purposes, real status without difficulty don't reach this far
-            return  (hasTotalDifficulty && nodeStatus.hasLowerTotalDifficultyThan(status)) ||
-                (!hasTotalDifficulty && nodeStatus.getBestBlockNumber() < status.getBestBlockNumber());
-        }
-
-        @Override
-        public BlockProcessResult processBlock(Block block, MessageChannel channel) {
-            // this is a controled place where we ask for blocks, we never should look for missing hashes
-            return blockSyncService.processBlock(block, channel, true);
-        }
-
-        @Override
-        public boolean blockHeaderIsValid(@Nonnull BlockHeader header) {
-            return blockHeaderValidationRule.isValid(header);
-        }
-
-        @Override
-        public boolean blockHeaderIsValid(@Nonnull BlockHeader header, @Nonnull BlockHeader parentHeader) {
-            if (!parentHeader.getHash().equals(header.getParentHash())) {
-                return false;
-            }
-
-            if (header.getNumber() != parentHeader.getNumber() + 1) {
-                return false;
-            }
-
-            if (!blockHeaderIsValid(header)) {
-                return false;
-            }
-
-            return blockParentValidationRule.validate(header, parentHeader);
-        }
-
-        @Override
-        public boolean blockIsValid(Block block) {
-            return blockValidationRule.isValid(block);
-        }
-
-        @CheckForNull
-        @Override
-        public NodeID getSelectedPeerId() {
-            return selectedPeerId;
-        }
-
-        @Override
-        public boolean hasGoodReputation(NodeID nodeID) {
-            return peerScoringManager.hasGoodReputation(nodeID);
-        }
-
-        @Override
-        public void reportEvent(String message, EventType eventType, NodeID peerId, Object... arguments) {
-            logger.trace(message, arguments);
-            peerScoringManager.recordEvent(peerId, null, eventType);
-        }
-
-        @Override
-        public int getScore(NodeID peerId) {
-            return peerScoringManager.getPeerScoring(peerId).getScore();
-        }
-
-        @Override
-        public Instant getFailInstant(NodeID peerId) {
-            Instant instant = failedPeers.get(peerId);
-            if (instant != null){
-                return instant;
-            }
-            return Instant.EPOCH;
-        }
-
-
-        private SyncPeerStatus getPeerStatus(NodeID nodeID) {
-            return peerStatuses.getPeer(nodeID);
-        }
     }
 }

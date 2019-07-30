@@ -2,7 +2,9 @@ package co.rsk.net.sync;
 
 import co.rsk.core.bc.ConsensusValidationMainchainView;
 import co.rsk.net.NodeID;
+import co.rsk.validators.BlockHeaderValidationRule;
 import org.ethereum.core.BlockIdentifier;
+import org.ethereum.validator.DependentBlockHeaderRule;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,10 +23,12 @@ public class DownloadingHeadersSyncStateTest {
         SyncState syncState = new DownloadingHeadersSyncState(
                 syncConfiguration,
                 syncEventsHandler,
-                new SimpleSyncInformation(),
+                mock(ConsensusValidationMainchainView.class),
+                mock(DependentBlockHeaderRule.class),
+                mock(BlockHeaderValidationRule.class),
                 skeletons,
-                0,
-                mock(ConsensusValidationMainchainView.class));
+                mock(NodeID.class),
+                0);
 
         for (int i = 0; i < 10; i++) {
             syncState.newPeerStatus();
@@ -39,10 +43,12 @@ public class DownloadingHeadersSyncStateTest {
         SyncState syncState = new DownloadingHeadersSyncState(
                 syncConfiguration,
                 syncEventsHandler,
-                new SimpleSyncInformation(),
+                mock(ConsensusValidationMainchainView.class),
+                mock(DependentBlockHeaderRule.class),
+                mock(BlockHeaderValidationRule.class),
                 Collections.emptyMap(),
-                0,
-                mock(ConsensusValidationMainchainView.class));
+                mock(NodeID.class),
+                0);
 
         syncState.newPeerStatus();
         Assert.assertFalse(syncEventsHandler.stopSyncingWasCalled());
@@ -61,10 +67,12 @@ public class DownloadingHeadersSyncStateTest {
         DownloadingHeadersSyncState syncState = new DownloadingHeadersSyncState(
                 syncConfiguration,
                 syncEventsHandler,
-                new SimpleSyncInformation(),
+                mock(ConsensusValidationMainchainView.class),
+                mock(DependentBlockHeaderRule.class),
+                mock(BlockHeaderValidationRule.class),
                 Collections.emptyMap(),
-                0,
-                mock(ConsensusValidationMainchainView.class));
+                mock(NodeID.class),
+                0);
 
         syncState.newPeerStatus();
         Assert.assertFalse(syncEventsHandler.stopSyncingWasCalled());
