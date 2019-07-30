@@ -1,6 +1,5 @@
-package co.rsk.net;
+package co.rsk.net.sync;
 
-import co.rsk.net.sync.*;
 import co.rsk.scoring.EventType;
 import org.ethereum.core.BlockHeader;
 import org.ethereum.util.ByteUtil;

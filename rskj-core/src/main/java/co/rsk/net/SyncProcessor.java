@@ -3,6 +3,7 @@ package co.rsk.net;
 import co.rsk.core.DifficultyCalculator;
 import co.rsk.core.bc.BlockChainStatus;
 import co.rsk.core.bc.ConsensusValidationMainchainView;
+import co.rsk.crypto.Keccak256;
 import co.rsk.net.messages.*;
 import co.rsk.net.sync.*;
 import co.rsk.scoring.EventType;
@@ -45,6 +46,7 @@ public class SyncProcessor implements SyncEventsHandler {
     private final Map<Long, MessageType> pendingMessages;
     private final SyncInformationImpl syncInformation;
     private final Map<NodeID, Instant> failedPeers;
+    private final SyncStateFactory factory;
     private SyncState syncState;
     private NodeID selectedPeerId;
     private long lastRequestId;
@@ -84,7 +86,10 @@ public class SyncProcessor implements SyncEventsHandler {
                 return size() > MAX_SIZE_FAILURE_RECORDS;
             }
         };
-        setSyncState(new DecidingSyncState(this.syncConfiguration, this, syncInformation, peerStatuses));
+
+        factory = new SyncStateFactory(syncConfiguration, this, syncInformation);
+        setSyncState(factory.newDecidingSyncState(peerStatuses));
+
     }
 
     public void processStatus(MessageChannel sender, Status status) {
@@ -223,7 +228,7 @@ public class SyncProcessor implements SyncEventsHandler {
         selectedPeerId = nodeID;
         logger.info("Start syncing with node {}", nodeID);
         byte[] bestBlockHash = syncInformation.getPeerStatus(selectedPeerId).getStatus().getBestBlockHash();
-        setSyncState(new CheckingBestHeaderSyncState(this.syncConfiguration, this, syncInformation, bestBlockHash));
+        setSyncState(factory.newCheckingBestHeaderSyncState(new Keccak256(bestBlockHash)));
     }
 
     @Override
@@ -236,31 +241,25 @@ public class SyncProcessor implements SyncEventsHandler {
             blockSyncService.setLastKnownBlockNumber(peerBestBlockNumber);
         }
 
-        setSyncState(new DownloadingBodiesSyncState(this.syncConfiguration, this, syncInformation, this.blockFactory, pendingHeaders, skeletons));
+        setSyncState(factory.newDownloadingBodiesSyncState(this.blockFactory, pendingHeaders, skeletons));
     }
 
     @Override
     public void startDownloadingHeaders(Map<NodeID, List<BlockIdentifier>> skeletons, long connectionPoint) {
-        setSyncState(
-                new DownloadingHeadersSyncState(
-                        this.syncConfiguration,
-                        this,
-                        syncInformation,
-                        skeletons,
-                        connectionPoint,
-                        consensusValidationMainchainView));
+        setSyncState(factory.newDownloadingHeadersSyncState(consensusValidationMainchainView, skeletons,
+                connectionPoint));
     }
 
     @Override
     public void startDownloadingSkeleton(long connectionPoint) {
-        setSyncState(new DownloadingSkeletonSyncState(this.syncConfiguration, this, syncInformation, peerStatuses, connectionPoint));
+        setSyncState(factory.newDownloadingSkeletonSyncState(peerStatuses, connectionPoint));
     }
 
     @Override
     public void startFindingConnectionPoint() {
         logger.debug("Find connection point with node {}", selectedPeerId);
         long bestBlockNumber = syncInformation.getPeerStatus(selectedPeerId).getStatus().getBestBlockNumber();
-        setSyncState(new FindingConnectionPointSyncState(this.syncConfiguration, this, syncInformation, bestBlockNumber));
+        setSyncState(factory.newFindingConnectionPointSyncState(bestBlockNumber));
     }
 
     @Override
@@ -272,7 +271,7 @@ public class SyncProcessor implements SyncEventsHandler {
         // always that a syncing process ends unexpectedly the best block number is reset
         blockSyncService.setLastKnownBlockNumber(blockchain.getBestBlock().getNumber());
         clearOldFailureEntries();
-        setSyncState(new DecidingSyncState(this.syncConfiguration, this, syncInformation, peerStatuses));
+        setSyncState(factory.newDecidingSyncState(peerStatuses));
     }
 
     @Override
@@ -345,7 +344,8 @@ public class SyncProcessor implements SyncEventsHandler {
     public void setSelectedPeer(MessageChannel peer, Status status, long height) {
         selectedPeerId = peer.getPeerNodeID();
         peerStatuses.getOrRegisterPeer(selectedPeerId).setStatus(status);
-        FindingConnectionPointSyncState newState = new FindingConnectionPointSyncState(this.syncConfiguration, this, syncInformation, height);
+        FindingConnectionPointSyncState newState =
+                new FindingConnectionPointSyncState(this.syncConfiguration, this, syncInformation, height);
         newState.setConnectionPoint(height);
         this.syncState = newState;
     }
