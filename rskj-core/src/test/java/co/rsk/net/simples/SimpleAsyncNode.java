@@ -23,6 +23,7 @@ import co.rsk.core.DifficultyCalculator;
 import co.rsk.core.bc.ConsensusValidationMainchainView;
 import co.rsk.net.*;
 import co.rsk.net.messages.Message;
+import co.rsk.net.sync.PeersInformation;
 import co.rsk.net.sync.SyncConfiguration;
 import co.rsk.scoring.PeerScoringManager;
 import co.rsk.test.World;
@@ -125,10 +126,10 @@ public class SimpleAsyncNode extends SimpleNode {
         SimpleChannelManager channelManager = new SimpleChannelManager();
         BlockFactory blockFactory = new BlockFactory(config.getActivationConfig());
         SyncProcessor syncProcessor = new SyncProcessor(
-                blockchain, mock(ConsensusValidationMainchainView.class), blockSyncService, peerScoringManager, channelManager, syncConfiguration, blockFactory,
+                blockchain, mock(ConsensusValidationMainchainView.class), blockSyncService, channelManager, syncConfiguration, blockFactory,
                 blockValidationRule,
                 new BlockCompositeRule(new BlockUnclesHashValidationRule(), new BlockRootValidationRule(config.getActivationConfig())),
-                new DifficultyCalculator(config.getActivationConfig(), config.getNetworkConstants())
+                new DifficultyCalculator(config.getActivationConfig(), config.getNetworkConstants()), new PeersInformation(channelManager, syncConfiguration, blockchain, peerScoringManager)
         );
         NodeMessageHandler handler = new NodeMessageHandler(config, processor, syncProcessor, channelManager, null, peerScoringManager, blockValidationRule);
         return new SimpleAsyncNode(handler, syncProcessor, channelManager);

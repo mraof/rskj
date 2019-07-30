@@ -43,6 +43,7 @@ import co.rsk.net.eth.MessageFilter;
 import co.rsk.net.eth.MessageRecorder;
 import co.rsk.net.eth.RskWireProtocol;
 import co.rsk.net.eth.WriterMessageRecorder;
+import co.rsk.net.sync.PeersInformation;
 import co.rsk.net.sync.SyncConfiguration;
 import co.rsk.peg.BridgeSupportFactory;
 import co.rsk.peg.BtcBlockStoreWithCache;
@@ -219,6 +220,7 @@ public class RskContext implements NodeBootstrapper {
     private BtcBlockStoreWithCache.Factory btcBlockStoreFactory;
     private PrecompiledContracts precompiledContracts;
     private BridgeSupportFactory bridgeSupportFactory;
+    private PeersInformation peersInformation;
 
     public RskContext(String[] args) {
         this(new CliArgs.Parser<>(
@@ -1236,7 +1238,6 @@ public class RskContext implements NodeBootstrapper {
                     getBlockchain(),
                     getConsensusValidationMainchainView(),
                     getBlockSyncService(),
-                    getPeerScoringManager(),
                     getChannelManager(),
                     getSyncConfiguration(),
                     getBlockFactory(),
@@ -1245,11 +1246,22 @@ public class RskContext implements NodeBootstrapper {
                             new BlockUnclesHashValidationRule(),
                             new BlockRootValidationRule(getRskSystemProperties().getActivationConfig())
                     ),
-                    getDifficultyCalculator()
+                    getDifficultyCalculator(), getPeersInformation()
             );
         }
 
         return syncProcessor;
+    }
+
+    private PeersInformation getPeersInformation() {
+        if (peersInformation == null) {
+            peersInformation = new PeersInformation(
+                    getChannelManager(),
+                    getSyncConfiguration(),
+                    getBlockchain(),
+                    getPeerScoringManager());
+        }
+        return peersInformation;
     }
 
     private SyncPool getSyncPool() {

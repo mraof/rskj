@@ -26,6 +26,7 @@ import co.rsk.crypto.Keccak256;
 import co.rsk.net.messages.*;
 import co.rsk.net.simples.SimpleBlockProcessor;
 import co.rsk.net.simples.SimpleMessageChannel;
+import co.rsk.net.sync.PeersInformation;
 import co.rsk.net.sync.SyncConfiguration;
 import co.rsk.net.utils.TransactionUtils;
 import co.rsk.scoring.EventType;
@@ -321,9 +322,9 @@ public class NodeMessageHandlerTest {
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
         final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
         final SimpleMessageChannel sender = new SimpleMessageChannel();
-        final SyncProcessor syncProcessor = new SyncProcessor(blockchain, mock(ConsensusValidationMainchainView.class), blockSyncService, RskMockFactory.getPeerScoringManager(), RskMockFactory.getChannelManager(), syncConfiguration, blockFactory, new DummyBlockValidationRule(),
+        final SyncProcessor syncProcessor = new SyncProcessor(blockchain, mock(ConsensusValidationMainchainView.class), blockSyncService, RskMockFactory.getChannelManager(), syncConfiguration, blockFactory, new DummyBlockValidationRule(),
                                                               new BlockCompositeRule(new BlockUnclesHashValidationRule(), new BlockRootValidationRule(config.getActivationConfig())),
-                                                              null);
+                                                              null, new PeersInformation(RskMockFactory.getChannelManager(), syncConfiguration, blockchain, RskMockFactory.getPeerScoringManager()));
         final NodeMessageHandler handler = new NodeMessageHandler(config, bp, syncProcessor, null, null, null,
                 new ProofOfWorkRule(config).setFallbackMiningEnabled(false));
 
