@@ -1,6 +1,7 @@
 package co.rsk.net.statesync;
 
 import co.rsk.net.NodeID;
+import co.rsk.net.Status;
 import co.rsk.trie.Trie;
 import org.ethereum.core.BlockHeader;
 import org.ethereum.core.Transaction;
@@ -10,7 +11,7 @@ import java.util.List;
 
 public interface StateSyncState {
 
-    StateSyncState newPeerStatus();
+    StateSyncState newPeerStatus(NodeID peerId, Status status);
 
     StateSyncState tick(Duration duration);
 

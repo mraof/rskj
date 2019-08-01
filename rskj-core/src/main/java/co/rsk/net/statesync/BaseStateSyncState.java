@@ -1,6 +1,7 @@
 package co.rsk.net.statesync;
 
 import co.rsk.net.NodeID;
+import co.rsk.net.Status;
 import co.rsk.trie.Trie;
 import org.ethereum.core.BlockHeader;
 import org.ethereum.core.Transaction;
@@ -14,13 +15,17 @@ public abstract class BaseStateSyncState implements StateSyncState {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected final Factory factory;
+    protected final PeersInformation peersInformation;
     protected SyncConfiguration syncConfiguration;
 
     protected Duration timeElapsed;
 
-    public BaseStateSyncState(Factory factory, SyncConfiguration syncConfiguration) {
+    public BaseStateSyncState(Factory factory,
+                              SyncConfiguration syncConfiguration,
+                              PeersInformation peersInformation) {
         this.factory = factory;
         this.syncConfiguration = syncConfiguration;
+        this.peersInformation = peersInformation;
         this.resetTimeElapsed();
     }
 
@@ -49,7 +54,8 @@ public abstract class BaseStateSyncState implements StateSyncState {
     }
 
     @Override
-    public StateSyncState newPeerStatus() {
+    public StateSyncState newPeerStatus(NodeID peerId, Status status) {
+        peersInformation.getOrRegisterPeer(peerId).setStatus(status);
         return this;
     }
 
