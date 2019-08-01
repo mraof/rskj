@@ -4,7 +4,6 @@ import co.rsk.core.BlockDifficulty;
 import co.rsk.core.bc.BlockChainStatus;
 import co.rsk.net.NodeID;
 import co.rsk.net.Status;
-import co.rsk.net.sync.SyncConfiguration;
 import co.rsk.net.sync.SyncPeerStatus;
 import co.rsk.scoring.PeerScoringManager;
 import org.ethereum.core.Blockchain;
