@@ -21,6 +21,8 @@ package co.rsk.trie;
 public interface TrieStore {
     void save(Trie trie);
 
+    void saveNode(Trie trie);
+
     void flush();
 
     /** Retrieve a trie node with the specified hash from this store */
