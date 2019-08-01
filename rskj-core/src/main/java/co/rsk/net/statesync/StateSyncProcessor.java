@@ -18,6 +18,7 @@ public class StateSyncProcessor {
     private StateSyncState currentState;
 
     public StateSyncProcessor(Factory factory) {
+        currentState = factory.newDeciding();
     }
 
     public void tick(Duration duration) {
