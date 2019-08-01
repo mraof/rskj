@@ -2,6 +2,7 @@ package co.rsk.net.statesync;
 
 import co.rsk.core.BlockDifficulty;
 import co.rsk.net.NodeID;
+import co.rsk.net.messages.BlocksRequestMessage;
 import org.ethereum.core.Block;
 import org.ethereum.db.BlockStore;
 import org.ethereum.net.server.ChannelManager;
@@ -80,7 +81,14 @@ public class BlocksDownloadSyncState extends BaseStateSyncState {
         return requestBlocks(windowFrom, BLOCKS_TO_REQUEST);
     }
 
-    private StateSyncState requestBlocks(long from, long count) {
+    private StateSyncState requestBlocks(long from, int count) {
+        BlocksRequestMessage blocksRequestMessage = new BlocksRequestMessage(++lastRequestId, from, count);
+        if (!channelManager.sendMessageTo(peerId, blocksRequestMessage)) {
+            logger.debug("Error when sending blocks request message from block {} to {} to node {}",
+                    from, from + count, peerId);
+            return factory.newDeciding();
+        }
+
         LongStream.range(from, count)
                 .forEach(blockNumber -> expectedBlocks.put(blockNumber, null));
         return this;

@@ -237,6 +237,19 @@ public enum MessageType {
 
             return new BlockHashResponseMessage(id, hash);
         }
+    },
+    BLOCKS_REQUEST_MESSAGE(19) {
+        @Override
+        public Message createMessage(BlockFactory blockFactory, RLPList list) {
+            RLPList message = (RLPList)RLP.decode2(list.get(1).getRLPData()).get(0);
+            byte[] rlpId = list.get(0).getRLPData();
+            long id = rlpId == null ? 0 : BigIntegers.fromUnsignedByteArray(rlpId).longValue();
+            byte[] rlpStartNumber = message.get(0).getRLPData();
+            long startNumber = rlpStartNumber == null ? 0 : BigIntegers.fromUnsignedByteArray(rlpStartNumber)
+                    .longValue();
+
+            return new BlocksRequestMessage(id, startNumber);
+        }
     };
 
     private int type;
