@@ -1245,6 +1245,7 @@ public class RskContext implements NodeBootstrapper {
                     getSyncProcessor(),
                     getPeersInformation(),
                     getBlockStore(),
+                    getTrieStore(),
                     getChannelManager(),
                     getRskSystemProperties().isStateSyncEnabled());
         }
