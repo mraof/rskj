@@ -12,7 +12,7 @@ import org.ethereum.net.server.ChannelManager;
 import java.util.*;
 
 public class StateDownloadSyncState extends BaseStateSyncState {
-
+    private final long MAX_IN_TRANSIT = 200;
     private final ChannelManager channelManager;
     private final TrieStore trieStore;
     private final NodeID peerId;
@@ -55,14 +55,20 @@ public class StateDownloadSyncState extends BaseStateSyncState {
         addIfNotKnown(trieNode.getLeft(), receivedNodeHash);
         addIfNotKnown(trieNode.getRight(), receivedNodeHash);
 
-        if (toRetrieve.isEmpty()) {
+        if (toRetrieve.isEmpty() && requestedNodes.isEmpty()) {
             trieStore.flush();
+            logger.debug("Synchronization finished");
             return factory.newDisabled();
         }
 
-        Keccak256 newRequest = toRetrieve.pop();
+        while (!toRetrieve.empty() && requestedNodes.size() < MAX_IN_TRANSIT) {
+            Keccak256 newRequest = toRetrieve.pop();
+            if (!requestNode(peerId, newRequest)) {
+                toRetrieve.push(newRequest);
+            }
+        }
 
-        return requestNode(peerId, newRequest, newRequest.getBytes());
+        return this;
     }
 
     private void addIfNotKnown(NodeReference node, Keccak256 receivedNodeHash) {
@@ -79,19 +85,17 @@ public class StateDownloadSyncState extends BaseStateSyncState {
 
     public StateSyncState onEnter() {
         logger.debug("Synchronizing state");
-        return requestNode(peerId, stateRoot, this.stateRoot.getBytes());
+        if (!requestNode(peerId, stateRoot)) {
+            return factory.newDeciding();
+        }
+
+        return this;
     }
 
-    private StateSyncState requestNode(NodeID peerId, Keccak256 hashToRequest, byte[] bytes) {
+    private boolean requestNode(NodeID peerId, Keccak256 hashToRequest) {
         TrieNodeRequestMessage message = new TrieNodeRequestMessage(++lastRequestId, hashToRequest.getBytes());
         requestedNodes.add(hashToRequest);
 
-        if (channelManager.sendMessageTo(peerId, message)) {
-            return this;
-        }
-
-        logger.debug("Error when sending node request message {} to peer {}, disabling state sync",
-                bytes, peerId);
-        return factory.newDeciding();
+        return channelManager.sendMessageTo(peerId, message);
     }
 }

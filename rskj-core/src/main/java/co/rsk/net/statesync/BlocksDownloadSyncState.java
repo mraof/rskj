@@ -13,7 +13,7 @@ import java.util.stream.LongStream;
 
 public class BlocksDownloadSyncState extends BaseStateSyncState {
 
-    private final static int BLOCKS_TO_REQUEST = 20;
+    private final static int BLOCKS_TO_REQUEST = 200;
 
     private final ChannelManager channelManager;
     private final BlockStore blockStore;

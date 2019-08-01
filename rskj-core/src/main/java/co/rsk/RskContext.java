@@ -1508,7 +1508,7 @@ public class RskContext implements NodeBootstrapper {
     }
 
     private StateSyncConfiguration buildStateSyncConfiguration() {
-        return new StateSyncConfiguration(1,60,30, 10,30,20);
+        return new StateSyncConfiguration(1,5,30, 10,30,20);
     }
 
     public org.ethereum.db.BlockStore buildBlockStore(String databaseDir) {
