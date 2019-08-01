@@ -56,7 +56,6 @@ public class SimpleBlockProcessor implements BlockProcessor {
 
     @Override
     public void processGetBlock(MessageChannel sender, byte[] hash) {
-
     }
 
     @Override
@@ -125,6 +124,11 @@ public class SimpleBlockProcessor implements BlockProcessor {
     @Override
     public boolean canBeIgnoredForUnclesRewards(long blockNumber) {
         return false;
+    }
+
+    @Override
+    public void processBlocksRequestMessage(MessageChannel sender, long requestId, long blockFrom, int count) {
+
     }
 
     @Override

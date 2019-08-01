@@ -12,7 +12,7 @@ import java.util.stream.LongStream;
 
 public class BlocksDownloadSyncState extends BaseStateSyncState {
 
-    private final static int BLOCKS_TO_REQUEST = 200;
+    private final static int BLOCKS_TO_REQUEST = 20;
 
     private final ChannelManager channelManager;
     private final BlockStore blockStore;
@@ -56,20 +56,22 @@ public class BlocksDownloadSyncState extends BaseStateSyncState {
 
         expectedBlocks.put(block.getNumber(), block);
 
-        while (expectedBlocks.firstKey() == windowFrom) {
+        while (!expectedBlocks.isEmpty()
+                && expectedBlocks.firstKey() == windowFrom
+                && expectedBlocks.firstEntry().getValue() != null) {
             Block blockToSave = expectedBlocks.pollFirstEntry().getValue();
 
             cummDifficulty = cummDifficulty.add(block.getCumulativeDifficulty());
             blockStore.saveBlock(blockToSave, cummDifficulty, true);
             windowFrom += 1;
         }
-        blockStore.flush();
 
         if (windowFrom == checkpoint) {
             return factory.newDisabled();
         }
 
         if (expectedBlocks.isEmpty()) {
+            blockStore.flush();
             return requestBlocks(windowFrom, BLOCKS_TO_REQUEST);
         }
 
@@ -89,7 +91,7 @@ public class BlocksDownloadSyncState extends BaseStateSyncState {
             return factory.newDeciding();
         }
 
-        LongStream.range(from, count)
+        LongStream.range(from, from + count)
                 .forEach(blockNumber -> expectedBlocks.put(blockNumber, null));
         return this;
     }

@@ -128,6 +128,8 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
             this.processSkeletonResponseMessage(sender, (SkeletonResponseMessage) message);
         } else if (mType == MessageType.NEW_BLOCK_HASH_MESSAGE) {
             this.processNewBlockHashMessage(sender, (NewBlockHashMessage) message);
+        } else if (mType == MessageType.BLOCKS_REQUEST_MESSAGE) {
+            this.processBlocksRequestMessage(sender, (BlocksRequestMessage) message);
         } else if(!blockProcessor.hasBetterBlockToSync()) {
             if (mType == MessageType.NEW_BLOCK_HASHES) {
                 this.processNewBlockHashesMessage(sender, (NewBlockHashesMessage) message);
@@ -386,6 +388,11 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
 
     private void processNewBlockHashMessage(@Nonnull final MessageChannel sender, @Nonnull final NewBlockHashMessage message) {
         this.syncProcessor.processNewBlockHash(sender, message);
+    }
+
+    private void processBlocksRequestMessage(@Nonnull final MessageChannel sender, @Nonnull final BlocksRequestMessage message) {
+        this.blockProcessor.processBlocksRequestMessage(sender, message.getId(),
+                message.getStartNumber(), message.getCount());
     }
 
     private void processSkeletonResponseMessage(@Nonnull final MessageChannel sender, @Nonnull final SkeletonResponseMessage message) {

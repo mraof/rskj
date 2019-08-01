@@ -25,6 +25,7 @@ import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
 import org.ethereum.core.BlockIdentifier;
 import org.ethereum.core.Blockchain;
+import org.ethereum.db.IndexedBlockStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.bouncycastle.util.encoders.Hex;
@@ -33,6 +34,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * NodeBlockProcessor processes blocks to add into a blockchain.
@@ -74,8 +76,6 @@ public class NodeBlockProcessor implements BlockProcessor {
         this.syncConfiguration = syncConfiguration;
     }
 
-    @Override
-    @Nonnull
     public Blockchain getBlockchain() {
         return this.blockchain;
     }
@@ -208,6 +208,24 @@ public class NodeBlockProcessor implements BlockProcessor {
         BlockHeadersResponseMessage response = new BlockHeadersResponseMessage(requestId, headers);
 
         sender.sendMessage(response);
+    }
+
+    @Override
+    public void processBlocksRequestMessage(final MessageChannel sender, long requestId, long blockFrom, int count) {
+        if (count > 200) {
+            logger.debug("Received request from block {}, requested {} blocks, ignoring", blockFrom, count);
+            return;
+        }
+
+        logger.trace("Processing headers request {} from {}, count {}, node {}", requestId, blockFrom, count,
+                sender.getPeerNodeID());
+        IntStream.range(0, count).forEach(i -> {
+            Block block = blockchain.getBlockByNumber(blockFrom + i);
+            if (block != null) {
+                BlockResponseMessage blockResponseMessage = new BlockResponseMessage(requestId, block);
+                sender.sendMessage(blockResponseMessage);
+            }
+        });
     }
 
     /**

@@ -19,11 +19,13 @@ public class StateSyncFactory {
                             SyncProcessor syncProcessor,
                             PeersInformation peersInformation,
                             BlockStore blockStore,
+                            ChannelManager channelManager,
                             boolean stateSyncActive) {
         this.syncConfiguration = syncConfiguration;
         this.syncProcessor = syncProcessor;
         this.peersInformation = peersInformation;
         this.blockStore = blockStore;
+        this.channelManager = channelManager;
         this.stateSyncActive = stateSyncActive;
     }
 

@@ -66,4 +66,6 @@ public interface BlockProcessor {
     void processSkeletonRequest(MessageChannel sender, long requestId, long startNumber);
 
     boolean canBeIgnoredForUnclesRewards(long blockNumber);
+
+    void processBlocksRequestMessage(final MessageChannel sender, long requestId, long blockFrom, int count);
 }

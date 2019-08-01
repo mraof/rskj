@@ -35,7 +35,7 @@ public class BlocksRequestMessage extends MessageWithId {
 
     @Override
     public MessageType getMessageType() {
-        return MessageType.BLOCK_REQUEST_MESSAGE;
+        return MessageType.BLOCKS_REQUEST_MESSAGE;
     }
 
     @Override
@@ -56,7 +56,7 @@ public class BlocksRequestMessage extends MessageWithId {
         return this.startNumber;
     }
 
-    public long getCount() {
+    public int getCount() {
         return this.count;
     }
 }

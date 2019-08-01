@@ -247,8 +247,11 @@ public enum MessageType {
             byte[] rlpStartNumber = message.get(0).getRLPData();
             long startNumber = rlpStartNumber == null ? 0 : BigIntegers.fromUnsignedByteArray(rlpStartNumber)
                     .longValue();
+            byte[] rlpCount = message.get(1).getRLPData();
+            int count = rlpCount == null ? 0 : BigIntegers.fromUnsignedByteArray(rlpCount)
+                    .intValue();
 
-            return new BlocksRequestMessage(id, startNumber);
+            return new BlocksRequestMessage(id, startNumber, count);
         }
     };
 
