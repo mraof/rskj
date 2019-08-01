@@ -3,6 +3,7 @@ package co.rsk.net;
 import co.rsk.config.TestSystemProperties;
 import co.rsk.core.DifficultyCalculator;
 import co.rsk.core.bc.ConsensusValidationMainchainView;
+import co.rsk.net.statesync.StateSyncProcessor;
 import co.rsk.net.sync.SyncConfiguration;
 import co.rsk.scoring.PeerScoringManager;
 import co.rsk.test.World;
@@ -40,7 +41,7 @@ public class NodeMessageHandlerUtil {
                 true);
         NodeBlockProcessor processor = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
 
-        return new NodeMessageHandler(config, processor, syncProcessor, new SimpleChannelManager(), null, RskMockFactory.getPeerScoringManager(), validationRule);
+        return new NodeMessageHandler(config, processor, syncProcessor, mock(StateSyncProcessor.class), new SimpleChannelManager(), null, RskMockFactory.getPeerScoringManager(), validationRule);
     }
 
     public static NodeMessageHandler createHandlerWithSyncProcessor() {
@@ -78,6 +79,6 @@ public class NodeMessageHandlerUtil {
                 blockValidationRule, new BlockCompositeRule(new BlockUnclesHashValidationRule(),
                 new BlockRootValidationRule(config.getActivationConfig())), DIFFICULTY_CALCULATOR,
                 true);
-        return new NodeMessageHandler(config, processor, syncProcessor, channelManager, null, null, blockValidationRule);
+        return new NodeMessageHandler(config, processor, syncProcessor, mock(StateSyncProcessor.class), channelManager, null, null, blockValidationRule);
     }
 }

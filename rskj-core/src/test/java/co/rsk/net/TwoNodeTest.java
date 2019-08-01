@@ -22,6 +22,7 @@ import co.rsk.blockchain.utils.BlockGenerator;
 import co.rsk.config.TestSystemProperties;
 import co.rsk.net.messages.BlockMessage;
 import co.rsk.net.simples.SimpleNode;
+import co.rsk.net.statesync.StateSyncProcessor;
 import co.rsk.net.sync.SyncConfiguration;
 import co.rsk.test.World;
 import co.rsk.validators.DummyBlockValidationRule;
@@ -32,6 +33,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by ajlopez on 5/14/2016.
@@ -52,7 +55,7 @@ public class TwoNodeTest {
         TestSystemProperties config = new TestSystemProperties();
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
         NodeBlockProcessor processor = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
-        NodeMessageHandler handler = new NodeMessageHandler(new TestSystemProperties(), processor, null, null, null, null, new DummyBlockValidationRule());
+        NodeMessageHandler handler = new NodeMessageHandler(new TestSystemProperties(), processor, null, mock(StateSyncProcessor.class), null, null, null, new DummyBlockValidationRule());
 
         return new SimpleNode(handler);
     }

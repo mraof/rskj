@@ -16,12 +16,12 @@ public abstract class BaseStateSyncState implements StateSyncState {
 
     protected final StateSyncFactory factory;
     protected final PeersInformation peersInformation;
-    protected SyncConfiguration syncConfiguration;
+    protected StateSyncConfiguration syncConfiguration;
 
     protected Duration timeElapsed;
 
     public BaseStateSyncState(StateSyncFactory factory,
-                              SyncConfiguration syncConfiguration,
+                              StateSyncConfiguration syncConfiguration,
                               PeersInformation peersInformation) {
         this.factory = factory;
         this.syncConfiguration = syncConfiguration;

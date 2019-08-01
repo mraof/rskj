@@ -21,7 +21,7 @@ public class PeersInformation {
     private static final int MAX_SIZE_FAILURE_RECORDS = 10;
 
     private final ChannelManager channelManager;
-    private final SyncConfiguration syncConfiguration;
+    private final StateSyncConfiguration syncConfiguration;
     private final PeerScoringManager peerScoringManager;
     private final Blockchain blockchain;
     private final Comparator<Map.Entry<NodeID, SyncPeerStatus>> peerComparator;
@@ -29,7 +29,7 @@ public class PeersInformation {
     private final Map<NodeID, Instant> failedPeers;
 
     public PeersInformation(ChannelManager channelManager,
-                            SyncConfiguration syncConfiguration,
+                            StateSyncConfiguration syncConfiguration,
                             PeerScoringManager peerScoringManager,
                             Blockchain blockchain){
         this.channelManager = channelManager;

@@ -23,6 +23,7 @@ import co.rsk.core.BlockDifficulty;
 import co.rsk.core.bc.BlockChainStatus;
 import co.rsk.crypto.Keccak256;
 import co.rsk.net.messages.*;
+import co.rsk.net.statesync.StateSyncProcessor;
 import co.rsk.scoring.EventType;
 import co.rsk.scoring.PeerScoringManager;
 import co.rsk.validators.BlockValidationRule;
@@ -53,6 +54,7 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
     private final RskSystemProperties config;
     private final BlockProcessor blockProcessor;
     private final SyncProcessor syncProcessor;
+    private final StateSyncProcessor stateSyncProcessor;
     private final ChannelManager channelManager;
     private final TransactionGateway transactionGateway;
     private final PeerScoringManager peerScoringManager;
@@ -70,11 +72,13 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
     public NodeMessageHandler(RskSystemProperties config,
                               @Nonnull final BlockProcessor blockProcessor,
                               final SyncProcessor syncProcessor,
+                              StateSyncProcessor stateSyncProcessor,
                               @Nullable final ChannelManager channelManager,
                               @Nullable final TransactionGateway transactionGateway,
                               @Nullable final PeerScoringManager peerScoringManager,
                               @Nonnull BlockValidationRule blockValidationRule) {
         this.config = config;
+        this.stateSyncProcessor = stateSyncProcessor;
         this.channelManager = channelManager;
         this.blockProcessor = blockProcessor;
         this.syncProcessor = syncProcessor;
@@ -340,6 +344,7 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
         final Status status = message.getStatus();
         logger.trace("Process status {}", status.getBestBlockNumber());
         this.syncProcessor.processStatus(sender, status);
+        this.stateSyncProcessor.newPeerStatus(sender.getPeerNodeID(), status);
     }
 
     private void processGetBlockMessage(@Nonnull final MessageChannel sender, @Nonnull final GetBlockMessage message) {

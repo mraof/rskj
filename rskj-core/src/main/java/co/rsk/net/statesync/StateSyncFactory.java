@@ -2,21 +2,22 @@ package co.rsk.net.statesync;
 
 
 import co.rsk.net.SyncProcessor;
+import co.rsk.net.sync.SyncConfiguration;
 import org.ethereum.db.BlockStore;
 
 public class StateSyncFactory {
 
-    private final SyncConfiguration syncConfiguration;
+    private final StateSyncConfiguration syncConfiguration;
     private final SyncProcessor syncProcessor;
     private final PeersInformation peersInformation;
     private final BlockStore blockStore;
     private final boolean stateSyncActive;
 
-    public StateSyncFactory(SyncConfiguration syncConfiguration,
-                   SyncProcessor syncProcessor,
-                   PeersInformation peersInformation,
-                   BlockStore blockStore,
-                   boolean stateSyncActive) {
+    public StateSyncFactory(StateSyncConfiguration syncConfiguration,
+                            SyncProcessor syncProcessor,
+                            PeersInformation peersInformation,
+                            BlockStore blockStore,
+                            boolean stateSyncActive) {
         this.syncConfiguration = syncConfiguration;
         this.syncProcessor = syncProcessor;
         this.peersInformation = peersInformation;

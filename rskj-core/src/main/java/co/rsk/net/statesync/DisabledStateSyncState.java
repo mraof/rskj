@@ -8,7 +8,7 @@ public class DisabledStateSyncState extends BaseStateSyncState {
     private final SyncProcessor syncProcessor;
 
     public DisabledStateSyncState(StateSyncFactory factory,
-                                  SyncConfiguration syncConfiguration,
+                                  StateSyncConfiguration syncConfiguration,
                                   SyncProcessor syncProcessor,
                                   PeersInformation peersInformation) {
         super(factory, syncConfiguration, peersInformation);

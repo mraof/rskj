@@ -12,7 +12,7 @@ public class DecidingStateSyncState extends BaseStateSyncState {
     private final boolean stateSyncActive;
 
     public DecidingStateSyncState(StateSyncFactory factory,
-                                  SyncConfiguration syncConfiguration,
+                                  StateSyncConfiguration syncConfiguration,
                                   PeersInformation peersInformation,
                                   BlockStore blockStore,
                                   boolean stateSyncActive) {

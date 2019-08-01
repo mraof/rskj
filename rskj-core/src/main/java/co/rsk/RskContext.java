@@ -43,6 +43,10 @@ import co.rsk.net.eth.MessageFilter;
 import co.rsk.net.eth.MessageRecorder;
 import co.rsk.net.eth.RskWireProtocol;
 import co.rsk.net.eth.WriterMessageRecorder;
+import co.rsk.net.statesync.PeersInformation;
+import co.rsk.net.statesync.StateSyncConfiguration;
+import co.rsk.net.statesync.StateSyncFactory;
+import co.rsk.net.statesync.StateSyncProcessor;
 import co.rsk.net.sync.SyncConfiguration;
 import co.rsk.peg.BridgeSupportFactory;
 import co.rsk.peg.BtcBlockStoreWithCache;
@@ -219,6 +223,9 @@ public class RskContext implements NodeBootstrapper {
     private BtcBlockStoreWithCache.Factory btcBlockStoreFactory;
     private PrecompiledContracts precompiledContracts;
     private BridgeSupportFactory bridgeSupportFactory;
+    private StateSyncFactory stateSyncFactory;
+    private PeersInformation peersInformation;
+    private StateSyncProcessor stateSyncProcessor;
 
     public RskContext(String[] args) {
         this(new CliArgs.Parser<>(
@@ -1230,6 +1237,43 @@ public class RskContext implements NodeBootstrapper {
         return ethModuleTransaction;
     }
 
+
+    private StateSyncFactory getStateSyncFactory() {
+        if (stateSyncFactory == null) {
+            stateSyncFactory = new StateSyncFactory(
+                    buildStateSyncConfiguration(),
+                    getSyncProcessor(),
+                    getPeersInformation(),
+                    getBlockStore(),
+                    getRskSystemProperties().isStateSyncEnabled());
+        }
+
+        return stateSyncFactory;
+    }
+
+    private PeersInformation getPeersInformation() {
+        if (peersInformation == null) {
+            peersInformation = new PeersInformation(
+                    getChannelManager(),
+                    buildStateSyncConfiguration(),
+                    getPeerScoringManager(),
+                    getBlockchain()
+                    );
+        }
+
+        return peersInformation;
+    }
+
+    private StateSyncProcessor getStateSyncProcessor() {
+        if (stateSyncProcessor == null) {
+            stateSyncProcessor = new StateSyncProcessor(
+                    getStateSyncFactory()
+            );
+        }
+
+        return stateSyncProcessor;
+    }
+
     private SyncProcessor getSyncProcessor() {
         if (syncProcessor == null) {
             syncProcessor = new SyncProcessor(
@@ -1246,7 +1290,7 @@ public class RskContext implements NodeBootstrapper {
                             new BlockRootValidationRule(getRskSystemProperties().getActivationConfig())
                     ),
                     getDifficultyCalculator(),
-                    !rskSystemProperties.isStateSyncEnabled());
+                    !getRskSystemProperties().isStateSyncEnabled());
         }
 
         return syncProcessor;
@@ -1368,6 +1412,7 @@ public class RskContext implements NodeBootstrapper {
                     getRskSystemProperties(),
                     getNodeBlockProcessor(),
                     getSyncProcessor(),
+                    getStateSyncProcessor(),
                     getChannelManager(),
                     getTransactionGateway(),
                     getPeerScoringManager(),
@@ -1458,6 +1503,10 @@ public class RskContext implements NodeBootstrapper {
         }
 
         return minerClock;
+    }
+
+    private StateSyncConfiguration buildStateSyncConfiguration() {
+        return new StateSyncConfiguration(1,60,30, 10,30,20);
     }
 
     public org.ethereum.db.BlockStore buildBlockStore(String databaseDir) {

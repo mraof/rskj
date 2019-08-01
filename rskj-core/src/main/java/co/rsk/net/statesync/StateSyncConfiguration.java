@@ -4,7 +4,7 @@ import javax.annotation.concurrent.Immutable;
 import java.time.Duration;
 
 @Immutable
-public final class SyncConfiguration {
+public final class StateSyncConfiguration {
 
     private final int expectedPeers;
     private final Duration timeoutWaitingPeers;
@@ -19,12 +19,12 @@ public final class SyncConfiguration {
      * @param timeoutWaitingRequest Timeout in seconds to wait for syncing requests
      * @param expirationTimePeerStatus Expiration time in minutes for peer status
      */
-    public SyncConfiguration(int expectedPeers,
-                             int timeoutWaitingPeers,
-                             int timeoutWaitingRequest,
-                             int expirationTimePeerStatus,
-                             int bPre,
-                             int bPos) {
+    public StateSyncConfiguration(int expectedPeers,
+                                  int timeoutWaitingPeers,
+                                  int timeoutWaitingRequest,
+                                  int expirationTimePeerStatus,
+                                  int bPre,
+                                  int bPos) {
         this.expectedPeers = expectedPeers;
         this.timeoutWaitingPeers = Duration.ofSeconds(timeoutWaitingPeers);
         this.timeoutWaitingRequest = Duration.ofSeconds(timeoutWaitingRequest);
