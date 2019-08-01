@@ -103,17 +103,6 @@ public enum MessageType {
             return new BlockHashRequestMessage(id, height);
         }
     },
-    BLOCK_HASH_RESPONSE_MESSAGE(18) {
-        @Override
-        public Message createMessage(BlockFactory blockFactory, RLPList list) {
-            RLPList message = (RLPList)RLP.decode2(list.get(1).getRLPData()).get(0);
-            byte[] rlpId = list.get(0).getRLPData();
-            long id = rlpId == null ? 0 : BigIntegers.fromUnsignedByteArray(rlpId).longValue();
-            byte[] hash = message.get(0).getRLPData();
-
-            return new BlockHashResponseMessage(id, hash);
-        }
-    },
     BLOCK_HEADERS_REQUEST_MESSAGE(9) {
         @Override
         public Message createMessage(BlockFactory blockFactory, RLPList list){
@@ -236,6 +225,17 @@ public enum MessageType {
         public Message createMessage(BlockFactory blockFactory, RLPList list) {
             byte[] hash = list.get(0).getRLPData();
             return new NewBlockHashMessage(hash);
+        }
+    },
+    BLOCK_HASH_RESPONSE_MESSAGE(18) {
+        @Override
+        public Message createMessage(BlockFactory blockFactory, RLPList list) {
+            RLPList message = (RLPList)RLP.decode2(list.get(1).getRLPData()).get(0);
+            byte[] rlpId = list.get(0).getRLPData();
+            long id = rlpId == null ? 0 : BigIntegers.fromUnsignedByteArray(rlpId).longValue();
+            byte[] hash = message.get(0).getRLPData();
+
+            return new BlockHashResponseMessage(id, hash);
         }
     };
 

@@ -3,6 +3,7 @@ package co.rsk.net.statesync;
 import co.rsk.net.NodeID;
 import co.rsk.net.Status;
 import co.rsk.trie.Trie;
+import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
 import org.ethereum.core.Transaction;
 import org.slf4j.Logger;
@@ -25,19 +26,15 @@ public class StateSyncProcessor {
         currentState = currentState.tick(duration);
     }
 
-    public void newBlockHeaders(NodeID nodeID, List<BlockHeader> blockHeaders) {
-        logger.debug("Processing block headers response from node {}", nodeID);
-        currentState = currentState.newBlockHeaders(blockHeaders);
-    }
 
     public void newTrieNode(NodeID peerId, long requestId, Trie trieNode) {
         logger.debug("Processing Trie Node response from node {}", peerId);
         currentState = currentState.newTrieNode(peerId, requestId, trieNode);
     }
 
-    public void newBlock(NodeID peerId, long requestId, List<Transaction> transactions, List<BlockHeader> uncles) {
+    public void newBlock(NodeID peerId, Block block) {
         logger.debug("Processing Block response from node {}", peerId);
-        currentState = currentState.newBody(peerId, requestId, transactions, uncles);
+        currentState = currentState.newBlock(block);
     }
 
     public void newPeerStatus(NodeID peerId, Status status) {

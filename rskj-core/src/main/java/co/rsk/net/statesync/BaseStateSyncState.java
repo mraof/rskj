@@ -3,6 +3,7 @@ package co.rsk.net.statesync;
 import co.rsk.net.NodeID;
 import co.rsk.net.Status;
 import co.rsk.trie.Trie;
+import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
 import org.ethereum.core.Transaction;
 import org.slf4j.Logger;
@@ -48,10 +49,6 @@ public abstract class BaseStateSyncState implements StateSyncState {
         return this;
     }
 
-    @Override
-    public StateSyncState newBlockHeaders(List<BlockHeader> chunk) {
-        return this;
-    }
 
     @Override
     public StateSyncState newPeerStatus(NodeID peerId, Status status) {
@@ -60,12 +57,9 @@ public abstract class BaseStateSyncState implements StateSyncState {
     }
 
     @Override
-    public StateSyncState newBody(NodeID peerId,
-                                  long requestId,
-                                  List<Transaction> transactions,
-                                  List<BlockHeader> uncles) {
+    public StateSyncState newBlock(Block block) {
         return this;
-    }
+    };
 
     @Override
     public StateSyncState onEnter() {

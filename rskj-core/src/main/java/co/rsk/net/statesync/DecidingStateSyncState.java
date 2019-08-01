@@ -5,6 +5,7 @@ import co.rsk.net.Status;
 import org.ethereum.db.BlockStore;
 
 import java.time.Duration;
+import java.util.Optional;
 
 public class DecidingStateSyncState extends BaseStateSyncState {
 
@@ -25,7 +26,7 @@ public class DecidingStateSyncState extends BaseStateSyncState {
     public StateSyncState newPeerStatus(NodeID peerId, Status status) {
         peersInformation.getOrRegisterPeer(peerId).setStatus(status);
         if (peersInformation.count() >= syncConfiguration.getExpectedPeers()) {
-            return tryStartSyncing();
+            return startSyncing();
         }
         return this;
     }
@@ -37,20 +38,31 @@ public class DecidingStateSyncState extends BaseStateSyncState {
         if (peersInformation.count() > 0 &&
                 timeElapsed.compareTo(syncConfiguration.getTimeoutWaitingPeers()) >= 0) {
 
-            return tryStartSyncing();
+            return startSyncing();
         }
         return this;
     }
 
     @Override
     public StateSyncState onEnter() {
-        if (!stateSyncActive || blockStore.getMaxNumber() > 0) {
+        if (!stateSyncActive) {
             return factory.newDisabled();
         }
         return this;
     }
 
-    private StateSyncState tryStartSyncing() {
+    private StateSyncState startSyncing() {
+        Optional<NodeID> optBestPeer = peersInformation.getBestPeer();
+        if (optBestPeer.isPresent()) {
+            Status peerStatus = peersInformation.getPeer(optBestPeer.get()).getStatus();
+            if (peerStatus.getBestBlockNumber() < syncConfiguration.getbPre() + syncConfiguration.getbPos()) {
+                logger.debug("The best peer doesn't have enough blocks to allow for state synchronization");
+                return this;
+            }
+
+            long checkpoint = peerStatus.getBestBlockNumber() - syncConfiguration.getbPos();
+            return factory.newBlocksDownload(optBestPeer.get(), checkpoint);
+        }
         return this;
     }
 }

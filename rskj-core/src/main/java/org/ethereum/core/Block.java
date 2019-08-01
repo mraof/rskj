@@ -36,6 +36,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The block in Ethereum is the collection of relevant pieces of information
@@ -372,5 +373,24 @@ public class Block {
 
     public void flushRLP() {
         this.rlpEncoded = null;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getHash());
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (other == null || this.getClass() != other.getClass()) {
+            return false;
+        }
+
+        Block otherBlock = (Block) other;
+        return getHash().equals(otherBlock.getHash());
     }
 }

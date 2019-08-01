@@ -1,9 +1,10 @@
 package co.rsk.net.statesync;
 
 
+import co.rsk.net.NodeID;
 import co.rsk.net.SyncProcessor;
-import co.rsk.net.sync.SyncConfiguration;
 import org.ethereum.db.BlockStore;
+import org.ethereum.net.server.ChannelManager;
 
 public class StateSyncFactory {
 
@@ -12,6 +13,7 @@ public class StateSyncFactory {
     private final PeersInformation peersInformation;
     private final BlockStore blockStore;
     private final boolean stateSyncActive;
+    private ChannelManager channelManager;
 
     public StateSyncFactory(StateSyncConfiguration syncConfiguration,
                             SyncProcessor syncProcessor,
@@ -32,7 +34,23 @@ public class StateSyncFactory {
     }
 
     StateSyncState newDisabled() {
-        StateSyncState constructedState = new DisabledStateSyncState(this, syncConfiguration, syncProcessor, peersInformation);
+        StateSyncState constructedState = new DisabledStateSyncState(
+                this,
+                syncConfiguration,
+                syncProcessor,
+                peersInformation);
+        return constructedState.onEnter();
+    }
+
+    StateSyncState newBlocksDownload(NodeID peerId, long checkpoint) {
+        StateSyncState constructedState = new BlocksDownloadSyncState(
+                this,
+                syncConfiguration,
+                peersInformation,
+                channelManager,
+                blockStore,
+                peerId,
+                checkpoint);
         return constructedState.onEnter();
     }
 }

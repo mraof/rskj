@@ -360,6 +360,7 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
 
     private void processBlockResponseMessage(@Nonnull final MessageChannel sender, @Nonnull final BlockResponseMessage message) {
         this.syncProcessor.processBlockResponse(sender, message);
+        this.stateSyncProcessor.newBlock(sender.getPeerNodeID(), message.getBlock());
     }
 
     private void processSkeletonRequestMessage(@Nonnull final MessageChannel sender, @Nonnull final SkeletonRequestMessage message) {
