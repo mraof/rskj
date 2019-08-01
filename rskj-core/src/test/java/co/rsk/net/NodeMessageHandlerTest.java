@@ -262,7 +262,7 @@ public class NodeMessageHandlerTest {
         BlockNodeInformation nodeInformation = new BlockNodeInformation();
         SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
-        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration, mock(TrieStore.class));
         final SimpleMessageChannel sender = new SimpleMessageChannel();
         final NodeMessageHandler handler = new NodeMessageHandler(config, bp, null, mock(StateSyncProcessor.class), null, null, null,
                 new ProofOfWorkRule(config).setFallbackMiningEnabled(false));
@@ -320,7 +320,7 @@ public class NodeMessageHandlerTest {
         BlockNodeInformation nodeInformation = new BlockNodeInformation();
         SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
-        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration, mock(TrieStore.class));
         final SimpleMessageChannel sender = new SimpleMessageChannel();
         final SyncProcessor syncProcessor = new SyncProcessor(blockchain, mock(ConsensusValidationMainchainView.class), blockSyncService, RskMockFactory.getPeerScoringManager(), RskMockFactory.getChannelManager(), syncConfiguration, blockFactory, new DummyBlockValidationRule(),
                                                               new BlockCompositeRule(new BlockUnclesHashValidationRule(), new BlockRootValidationRule(config.getActivationConfig())),
@@ -353,7 +353,7 @@ public class NodeMessageHandlerTest {
         BlockNodeInformation nodeInformation = new BlockNodeInformation();
         SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
-        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration, mock(TrieStore.class));
 
         final NodeMessageHandler handler = new NodeMessageHandler(config, bp, null, mock(StateSyncProcessor.class), null, null,
                 null, new ProofOfWorkRule(config).setFallbackMiningEnabled(false));
@@ -388,7 +388,7 @@ public class NodeMessageHandlerTest {
         BlockNodeInformation nodeInformation = new BlockNodeInformation();
         SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
-        NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration, mock(TrieStore.class));
 
         NodeMessageHandler handler = new NodeMessageHandler(config, bp, null, mock(StateSyncProcessor.class), null, null, null,
                 new ProofOfWorkRule(config).setFallbackMiningEnabled(false));
@@ -420,7 +420,7 @@ public class NodeMessageHandlerTest {
         BlockNodeInformation nodeInformation = new BlockNodeInformation();
         SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
-        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration, mock(TrieStore.class));
 
         final NodeMessageHandler handler = new NodeMessageHandler(config, bp, null, mock(StateSyncProcessor.class), null, null, null, new DummyBlockValidationRule());
 
@@ -444,7 +444,7 @@ public class NodeMessageHandlerTest {
         BlockNodeInformation nodeInformation = new BlockNodeInformation();
         SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
-        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration, mock(TrieStore.class));
 
         final NodeMessageHandler handler = new NodeMessageHandler(config, bp, null, mock(StateSyncProcessor.class), null, null, null,
                 new ProofOfWorkRule(config).setFallbackMiningEnabled(false));
@@ -479,7 +479,7 @@ public class NodeMessageHandlerTest {
         BlockNodeInformation nodeInformation = new BlockNodeInformation();
         SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
-        NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration, mock(TrieStore.class));
 
         NodeMessageHandler handler = new NodeMessageHandler(config, bp, null, mock(StateSyncProcessor.class), null, null, null,
                 new ProofOfWorkRule(config).setFallbackMiningEnabled(false));
@@ -515,7 +515,7 @@ public class NodeMessageHandlerTest {
         BlockNodeInformation nodeInformation = new BlockNodeInformation();
         SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
-        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration, mock(TrieStore.class));
         final NodeMessageHandler handler = new NodeMessageHandler(config, bp, null, mock(StateSyncProcessor.class), null, null, null,
                 new ProofOfWorkRule(config).setFallbackMiningEnabled(false));
 
@@ -653,7 +653,7 @@ public class NodeMessageHandlerTest {
         BlockNodeInformation nodeInformation = new BlockNodeInformation();
         SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
-        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration, mock(TrieStore.class));
         final NodeMessageHandler handler = new NodeMessageHandler(config, bp, null, mock(StateSyncProcessor.class), null, null, null,
                 new ProofOfWorkRule(config).setFallbackMiningEnabled(false));
 
@@ -747,7 +747,7 @@ public class NodeMessageHandlerTest {
         BlockNodeInformation nodeInformation = new BlockNodeInformation();
         SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
-        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        final NodeBlockProcessor bp = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration, mock(TrieStore.class));
 
         final NodeMessageHandler handler = new NodeMessageHandler(config, bp, null, mock(StateSyncProcessor.class), null, null, null, new DummyBlockValidationRule());
 

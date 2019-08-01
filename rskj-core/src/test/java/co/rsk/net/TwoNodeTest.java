@@ -54,7 +54,7 @@ public class TwoNodeTest {
         SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
         TestSystemProperties config = new TestSystemProperties();
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
-        NodeBlockProcessor processor = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        NodeBlockProcessor processor = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration, mock(TrieStore.class));
         NodeMessageHandler handler = new NodeMessageHandler(new TestSystemProperties(), processor, null, mock(StateSyncProcessor.class), null, null, null, new DummyBlockValidationRule());
 
         return new SimpleNode(handler);

@@ -21,11 +21,12 @@ package co.rsk.net;
 import co.rsk.crypto.Keccak256;
 import co.rsk.net.messages.*;
 import co.rsk.net.sync.SyncConfiguration;
+import co.rsk.trie.Trie;
+import co.rsk.trie.TrieStore;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
 import org.ethereum.core.BlockIdentifier;
 import org.ethereum.core.Blockchain;
-import org.ethereum.db.IndexedBlockStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.bouncycastle.util.encoders.Hex;
@@ -53,27 +54,30 @@ public class NodeBlockProcessor implements BlockProcessor {
     private final SyncConfiguration syncConfiguration;
     // keeps on a map the hashes that belongs to the skeleton
     private final Map <Long, byte[]> skeletonCache = new HashMap<>();
+    private final TrieStore trieStore;
 
     /**
      * Creates a new NodeBlockProcessor using the given BlockStore and Blockchain.
-     *
-     * @param store        A BlockStore to store the blocks that are not ready for the Blockchain.
+     *  @param store        A BlockStore to store the blocks that are not ready for the Blockchain.
      * @param blockchain   The blockchain in which to insert the blocks.
      * @param nodeInformation
      * @param blockSyncService
+     * @param trieStore
      */
     public NodeBlockProcessor(
             @Nonnull final BlockStore store,
             @Nonnull final Blockchain blockchain,
             @Nonnull final BlockNodeInformation nodeInformation,
             @Nonnull final BlockSyncService blockSyncService,
-            @Nonnull final SyncConfiguration syncConfiguration) {
+            @Nonnull final SyncConfiguration syncConfiguration,
+            TrieStore trieStore) {
 
         this.store = store;
         this.blockchain = blockchain;
         this.nodeInformation = nodeInformation;
         this.blockSyncService = blockSyncService;
         this.syncConfiguration = syncConfiguration;
+        this.trieStore = trieStore;
     }
 
     public Blockchain getBlockchain() {
@@ -308,6 +312,16 @@ public class NodeBlockProcessor implements BlockProcessor {
         blockIdentifiers.add(new BlockIdentifier(skeletonHash, skeletonNumber));
         SkeletonResponseMessage responseMessage = new SkeletonResponseMessage(requestId, blockIdentifiers);
 
+        sender.sendMessage(responseMessage);
+    }
+
+    @Override
+    public void processTrieNodeRequest(MessageChannel sender, long requestId, byte[] hash) {
+        Trie trieNode = trieStore.retrieve(hash);
+        if (trieNode == null) {
+            return;
+        }
+        TrieNodeResponseMessage responseMessage = new TrieNodeResponseMessage(requestId, trieNode, trieNode.getValue());
         sender.sendMessage(responseMessage);
     }
 

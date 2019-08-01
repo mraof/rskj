@@ -448,8 +448,8 @@ public class RskContext implements NodeBootstrapper {
                     getBlockchain(),
                     getBlockNodeInformation(),
                     getBlockSyncService(),
-                    getSyncConfiguration()
-            );
+                    getSyncConfiguration(),
+                    getTrieStore());
         }
 
         return nodeBlockProcessor;

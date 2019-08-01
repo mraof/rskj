@@ -1,6 +1,7 @@
 package co.rsk.net.statesync;
 
 import co.rsk.core.BlockDifficulty;
+import co.rsk.crypto.Keccak256;
 import co.rsk.net.NodeID;
 import co.rsk.net.messages.BlocksRequestMessage;
 import org.ethereum.core.Block;
@@ -67,7 +68,9 @@ public class BlocksDownloadSyncState extends BaseStateSyncState {
         }
 
         if (windowFrom == checkpoint) {
-            return factory.newDisabled();
+            Keccak256 stateRoot = new Keccak256(blockStore.getBestBlock().getStateRoot());
+            blockStore.flush();
+            return factory.newDownloadingState(peerId, stateRoot);
         }
 
         if (expectedBlocks.isEmpty()) {

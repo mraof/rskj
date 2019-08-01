@@ -3,6 +3,7 @@ package co.rsk.net.statesync;
 
 import co.rsk.crypto.Keccak256;
 import co.rsk.net.NodeID;
+import co.rsk.net.messages.TrieNodeRequestMessage;
 import co.rsk.trie.NodeReference;
 import co.rsk.trie.Trie;
 import co.rsk.trie.TrieStore;
@@ -56,7 +57,7 @@ public class StateDownloadSyncState extends BaseStateSyncState {
 
         if (toRetrieve.isEmpty()) {
             trieStore.flush();
-            return factory.newDeciding();
+            return factory.newDisabled();
         }
 
         Keccak256 newRequest = toRetrieve.pop();
@@ -82,6 +83,15 @@ public class StateDownloadSyncState extends BaseStateSyncState {
     }
 
     private StateSyncState requestNode(NodeID peerId, Keccak256 hashToRequest, byte[] bytes) {
-        return this;
+        TrieNodeRequestMessage message = new TrieNodeRequestMessage(++lastRequestId, hashToRequest.getBytes());
+        requestedNodes.add(hashToRequest);
+
+        if (channelManager.sendMessageTo(peerId, message)) {
+            return this;
+        }
+
+        logger.debug("Error when sending node request message {} to peer {}, disabling state sync",
+                bytes, peerId);
+        return factory.newDeciding();
     }
 }

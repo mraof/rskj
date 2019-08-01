@@ -128,6 +128,10 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
             this.processSkeletonResponseMessage(sender, (SkeletonResponseMessage) message);
         } else if (mType == MessageType.NEW_BLOCK_HASH_MESSAGE) {
             this.processNewBlockHashMessage(sender, (NewBlockHashMessage) message);
+        } else if (mType == MessageType.TRIE_NODE_REQUEST_MESSAGE) {
+            this.processTrieNodeRequestMessage(sender, (TrieNodeRequestMessage) message);
+        } else if (mType == MessageType.TRIE_NODE_RESPONSE_MESSAGE) {
+            this.processTrieNodeResponseMessage(sender, (TrieNodeResponseMessage) message);
         } else if (mType == MessageType.BLOCKS_REQUEST_MESSAGE) {
             this.processBlocksRequestMessage(sender, (BlocksRequestMessage) message);
         } else if(!blockProcessor.hasBetterBlockToSync()) {
@@ -388,6 +392,17 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
 
     private void processNewBlockHashMessage(@Nonnull final MessageChannel sender, @Nonnull final NewBlockHashMessage message) {
         this.syncProcessor.processNewBlockHash(sender, message);
+    }
+
+    private void processTrieNodeRequestMessage(@Nonnull final MessageChannel sender, @Nonnull final TrieNodeRequestMessage message) {
+        final long requestId = message.getId();
+        final byte[] hash = message.getTrieNodeHash();
+        this.blockProcessor.processTrieNodeRequest(sender, requestId, hash);
+    }
+
+    private void processTrieNodeResponseMessage(@Nonnull final MessageChannel sender, @Nonnull final TrieNodeResponseMessage message) {
+        final long requestId = message.getId();
+        this.stateSyncProcessor.newTrieNode(sender.getPeerNodeID(), requestId, message.getTrieNode());
     }
 
     private void processBlocksRequestMessage(@Nonnull final MessageChannel sender, @Nonnull final BlocksRequestMessage message) {

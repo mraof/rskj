@@ -56,7 +56,7 @@ public class TwoAsyncNodeTest {
         BlockNodeInformation nodeInformation = new BlockNodeInformation();
         SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
-        NodeBlockProcessor processor = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        NodeBlockProcessor processor = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration, mock(TrieStore.class));
         NodeMessageHandler handler = new NodeMessageHandler(config, processor, null, mock(StateSyncProcessor.class), null, null, null, new DummyBlockValidationRule());
 
         return new SimpleAsyncNode(handler);
@@ -75,7 +75,7 @@ public class TwoAsyncNodeTest {
         BlockNodeInformation nodeInformation = new BlockNodeInformation();
         SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, syncConfiguration);
-        NodeBlockProcessor processor = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        NodeBlockProcessor processor = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration, mock(TrieStore.class));
         NodeMessageHandler handler = new NodeMessageHandler(config, processor, null, mock(StateSyncProcessor.class), null, null, null, new DummyBlockValidationRule());
 
         return new SimpleAsyncNode(handler);

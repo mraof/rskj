@@ -153,6 +153,6 @@ public class NodeBlockProcessorUnclesTest {
         TestSystemProperties config = new TestSystemProperties();
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockChain, nodeInformation, syncConfiguration);
 
-        return new NodeBlockProcessor(store, blockChain, nodeInformation, blockSyncService, syncConfiguration);
+        return new NodeBlockProcessor(store, blockChain, nodeInformation, blockSyncService, syncConfiguration, mock(TrieStore.class));
     }
 }
