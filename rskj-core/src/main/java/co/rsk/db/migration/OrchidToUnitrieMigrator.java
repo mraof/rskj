@@ -463,6 +463,12 @@ public class OrchidToUnitrieMigrator {
         }
 
         @Override
+        public void saveNode(Trie trie) {
+            triesCache.put(trie.getHash(), trie);
+            parent.saveNode(trie);
+        }
+
+        @Override
         public Trie retrieve(byte[] hash) {
             return triesCache.computeIfAbsent(new Keccak256(hash), key -> parent.retrieve(hash));
         }

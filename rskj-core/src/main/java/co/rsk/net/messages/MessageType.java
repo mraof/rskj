@@ -21,7 +21,11 @@ package co.rsk.net.messages;
 import co.rsk.core.BlockDifficulty;
 import co.rsk.net.Status;
 import co.rsk.remasc.RemascTransaction;
+import co.rsk.trie.Trie;
+import co.rsk.trie.TrieStoreImpl;
 import org.ethereum.core.*;
+import org.ethereum.datasource.HashMapDB;
+import org.ethereum.datasource.KeyValueDataSource;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
@@ -252,6 +256,33 @@ public enum MessageType {
                     .intValue();
 
             return new BlocksRequestMessage(id, startNumber, count);
+        }
+    },
+    TRIE_NODE_REQUEST_MESSAGE(20) {
+        @Override
+        public Message createMessage(BlockFactory blockFactory, RLPList list) {
+            RLPList message = (RLPList)RLP.decode2(list.get(1).getRLPData()).get(0);
+            byte[] rlpId = list.get(0).getRLPData();
+            long id = rlpId == null ? 0 : BigIntegers.fromUnsignedByteArray(rlpId).longValue();
+            byte[] hash = message.get(0).getRLPData();
+            return new TrieNodeRequestMessage(id, hash);
+        }
+    },
+    TRIE_NODE_RESPONSE_MESSAGE(21) {
+        @Override
+        public Message createMessage(BlockFactory blockFactory, RLPList list) {
+            byte[] rlpId = list.get(0).getRLPData();
+            long id = rlpId == null ? 0 : BigIntegers.fromUnsignedByteArray(rlpId).longValue();
+
+            byte[] encodedTrie = ((RLPList) (list.get(1))).get(0).getRLPRawData();
+            byte[] value = ((RLPList) (list.get(1))).get(1).getRLPRawData();
+
+            KeyValueDataSource dataSource = new HashMapDB();
+            Trie trie = Trie.fromMessage(encodedTrie, new TrieStoreImpl(dataSource));
+            if (trie.hasLongValue()) {
+                dataSource.put(trie.getValueHash().getBytes(), value);
+            }
+            return new TrieNodeResponseMessage(id, trie, value);
         }
     };
 
