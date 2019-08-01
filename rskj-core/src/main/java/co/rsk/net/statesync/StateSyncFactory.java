@@ -4,7 +4,7 @@ package co.rsk.net.statesync;
 import co.rsk.net.SyncProcessor;
 import org.ethereum.db.BlockStore;
 
-public class Factory {
+public class StateSyncFactory {
 
     private final SyncConfiguration syncConfiguration;
     private final SyncProcessor syncProcessor;
@@ -12,7 +12,7 @@ public class Factory {
     private final BlockStore blockStore;
     private final boolean stateSyncActive;
 
-    public Factory(SyncConfiguration syncConfiguration,
+    public StateSyncFactory(SyncConfiguration syncConfiguration,
                    SyncProcessor syncProcessor,
                    PeersInformation peersInformation,
                    BlockStore blockStore,

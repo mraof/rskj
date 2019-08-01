@@ -14,13 +14,13 @@ import java.util.List;
 public abstract class BaseStateSyncState implements StateSyncState {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    protected final Factory factory;
+    protected final StateSyncFactory factory;
     protected final PeersInformation peersInformation;
     protected SyncConfiguration syncConfiguration;
 
     protected Duration timeElapsed;
 
-    public BaseStateSyncState(Factory factory,
+    public BaseStateSyncState(StateSyncFactory factory,
                               SyncConfiguration syncConfiguration,
                               PeersInformation peersInformation) {
         this.factory = factory;

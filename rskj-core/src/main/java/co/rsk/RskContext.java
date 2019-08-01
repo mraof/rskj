@@ -1245,8 +1245,8 @@ public class RskContext implements NodeBootstrapper {
                             new BlockUnclesHashValidationRule(),
                             new BlockRootValidationRule(getRskSystemProperties().getActivationConfig())
                     ),
-                    getDifficultyCalculator()
-            );
+                    getDifficultyCalculator(),
+                    !rskSystemProperties.isStateSyncEnabled());
         }
 
         return syncProcessor;

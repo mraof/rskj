@@ -83,6 +83,8 @@ public abstract class SystemProperties {
     public static final String PROPERTY_PUBLIC_IP = "public.ip";
     public static final String PROPERTY_BIND_ADDRESS = "bind_address";
 
+    public static final String PROPERTY_STATE_SYNC = "sync.state.sync";
+
     /* Testing */
     private static final Boolean DEFAULT_VMTEST_LOAD_LOCAL = false;
     private static final String DEFAULT_BLOCKS_LOADER = "";
@@ -620,6 +622,10 @@ public abstract class SystemProperties {
 
     public String corsDomains() {
         return configFromFiles.getString(PROPERTY_RPC_CORS);
+    }
+
+    public boolean isStateSyncEnabled() {
+        return configFromFiles.getBoolean(PROPERTY_STATE_SYNC);
     }
 
     /**

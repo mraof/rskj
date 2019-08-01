@@ -48,6 +48,7 @@ public class SyncProcessor implements SyncEventsHandler {
     private SyncState syncState;
     private NodeID selectedPeerId;
     private long lastRequestId;
+    private boolean isActive;
 
     public SyncProcessor(Blockchain blockchain,
                          ConsensusValidationMainchainView consensusValidationMainchainView,
@@ -58,7 +59,8 @@ public class SyncProcessor implements SyncEventsHandler {
                          BlockFactory blockFactory,
                          BlockHeaderValidationRule blockHeaderValidationRule,
                          BlockCompositeRule blockValidationRule,
-                         DifficultyCalculator difficultyCalculator) {
+                         DifficultyCalculator difficultyCalculator,
+                         boolean isActive) {
         this.blockchain = blockchain;
         this.consensusValidationMainchainView = consensusValidationMainchainView;
         this.blockSyncService = blockSyncService;
@@ -84,6 +86,7 @@ public class SyncProcessor implements SyncEventsHandler {
                 return size() > MAX_SIZE_FAILURE_RECORDS;
             }
         };
+        this.isActive = isActive;
         setSyncState(new DecidingSyncState(this.syncConfiguration, this, syncInformation, peerStatuses));
     }
 
@@ -218,8 +221,16 @@ public class SyncProcessor implements SyncEventsHandler {
         this.syncState.tick(timePassed);
     }
 
+    public void enableSyncing() {
+        this.isActive = true;
+    }
+
     @Override
     public void startSyncing(NodeID nodeID) {
+        if (!isActive) {
+            return;
+        }
+
         selectedPeerId = nodeID;
         logger.info("Start syncing with node {}", nodeID);
         byte[] bestBlockHash = syncInformation.getPeerStatus(selectedPeerId).getStatus().getBestBlockHash();

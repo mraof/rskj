@@ -36,8 +36,8 @@ public class NodeMessageHandlerUtil {
                 blockchain, mock(ConsensusValidationMainchainView.class), blockSyncService, RskMockFactory.getPeerScoringManager(),
                 RskMockFactory.getChannelManager(), syncConfiguration, blockFactory, new DummyBlockValidationRule(),
                 new BlockCompositeRule(new BlockUnclesHashValidationRule(), new BlockRootValidationRule(config.getActivationConfig())),
-                DIFFICULTY_CALCULATOR
-        );
+                DIFFICULTY_CALCULATOR,
+                true);
         NodeBlockProcessor processor = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
 
         return new NodeMessageHandler(config, processor, syncProcessor, new SimpleChannelManager(), null, RskMockFactory.getPeerScoringManager(), validationRule);
@@ -76,8 +76,8 @@ public class NodeMessageHandlerUtil {
         SyncProcessor syncProcessor = new SyncProcessor(
                 blockchain, mock(ConsensusValidationMainchainView.class), blockSyncService, peerScoringManager, channelManager, syncConfiguration, blockFactory,
                 blockValidationRule, new BlockCompositeRule(new BlockUnclesHashValidationRule(),
-                new BlockRootValidationRule(config.getActivationConfig())), DIFFICULTY_CALCULATOR
-        );
+                new BlockRootValidationRule(config.getActivationConfig())), DIFFICULTY_CALCULATOR,
+                true);
         return new NodeMessageHandler(config, processor, syncProcessor, channelManager, null, null, blockValidationRule);
     }
 }

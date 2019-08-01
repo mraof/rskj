@@ -32,7 +32,7 @@ public enum NodeCliFlags implements CliArg {
     NETWORK_REGTEST("regtest", SystemProperties.PROPERTY_BC_CONFIG_NAME, "regtest"),
     NETWORK_DEVNET("devnet", SystemProperties.PROPERTY_BC_CONFIG_NAME, "devnet"),
     NETWORK_MAINNET("main", SystemProperties.PROPERTY_BC_CONFIG_NAME, "main"),
-    ;
+    SYNC_STATE_SYNC("statesync", SystemProperties.PROPERTY_STATE_SYNC, false);
 
     private final String flagName;
     private final String configPath;

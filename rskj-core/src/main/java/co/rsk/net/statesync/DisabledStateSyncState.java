@@ -7,7 +7,7 @@ public class DisabledStateSyncState extends BaseStateSyncState {
 
     private final SyncProcessor syncProcessor;
 
-    public DisabledStateSyncState(Factory factory,
+    public DisabledStateSyncState(StateSyncFactory factory,
                                   SyncConfiguration syncConfiguration,
                                   SyncProcessor syncProcessor,
                                   PeersInformation peersInformation) {
@@ -16,6 +16,7 @@ public class DisabledStateSyncState extends BaseStateSyncState {
     }
 
     public StateSyncState onEnter() {
+        syncProcessor.enableSyncing();
         return this;
     }
 }

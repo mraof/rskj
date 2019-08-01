@@ -17,7 +17,7 @@ public class StateSyncProcessor {
 
     private StateSyncState currentState;
 
-    public StateSyncProcessor(Factory factory) {
+    public StateSyncProcessor(StateSyncFactory factory) {
         currentState = factory.newDeciding();
     }
 

@@ -11,7 +11,7 @@ public class DecidingStateSyncState extends BaseStateSyncState {
     private final BlockStore blockStore;
     private final boolean stateSyncActive;
 
-    public DecidingStateSyncState(Factory factory,
+    public DecidingStateSyncState(StateSyncFactory factory,
                                   SyncConfiguration syncConfiguration,
                                   PeersInformation peersInformation,
                                   BlockStore blockStore,
