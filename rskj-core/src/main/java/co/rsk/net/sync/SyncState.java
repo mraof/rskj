@@ -12,7 +12,7 @@ public interface SyncState {
     void newBlockHeaders(List<BlockHeader> chunk);
 
     // TODO(mc) don't receive a full message
-    void newBody(BodyResponseMessage message, MessageChannel peer);
+    void newBody(MessageChannel peer, BodyResponseMessage message);
 
     void newConnectionPointData(byte[] hash);
 

@@ -84,15 +84,16 @@ public class DownloadingBodiesSyncState  extends BaseSyncState {
     }
 
     @Override
-    public void newBody(BodyResponseMessage message, MessageChannel peer) {
+    public void newBody(MessageChannel peer, BodyResponseMessage message) {
         NodeID peerId = peer.getPeerNodeID();
-        if (!isExpectedBody(message.getId(), peerId)) {
+        long requestId = message.getId();
+        if (!isExpectedBody(requestId, peerId)) {
             handleUnexpectedBody(peerId);
             return;
         }
 
         // we already checked that this message was expected
-        BlockHeader header = pendingBodyResponses.remove(message.getId()).header;
+        BlockHeader header = pendingBodyResponses.remove(requestId).header;
         Block block;
         try {
             block = blockFactory.newBlock(header, message.getTransactions(), message.getUncles());

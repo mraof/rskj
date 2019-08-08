@@ -41,7 +41,7 @@ public abstract class BaseSyncState implements SyncState {
     }
 
     @Override
-    public void newBody(BodyResponseMessage message, MessageChannel peer) {
+    public void newBody(MessageChannel peer, BodyResponseMessage message) {
     }
 
     @Override

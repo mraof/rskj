@@ -134,7 +134,7 @@ public class SyncProcessor implements SyncEventsHandler {
         MessageType messageType = message.getMessageType();
         if (isPending(messageId, messageType)) {
             removePendingMessage(messageId, messageType);
-            syncState.newBody(message, peer);
+            syncState.newBody(peer, message);
         } else {
             peersInformation.reportEvent(peer.getPeerNodeID(), EventType.UNEXPECTED_MESSAGE);
         }
