@@ -26,6 +26,7 @@ import co.rsk.net.messages.BlockMessage;
 import co.rsk.net.simples.SimpleAsyncNode;
 import co.rsk.net.sync.PeersInformation;
 import co.rsk.net.sync.SyncConfiguration;
+import co.rsk.net.sync.SyncMessager;
 import co.rsk.test.World;
 import co.rsk.validators.BlockCompositeRule;
 import co.rsk.validators.BlockRootValidationRule;
@@ -64,9 +65,9 @@ public class OneAsyncNodeTest {
                 new BlockFactory(config.getActivationConfig()),
                 new DummyBlockValidationRule(),
                 new BlockCompositeRule(new BlockUnclesHashValidationRule(), new BlockRootValidationRule(config.getActivationConfig())),
-                new DifficultyCalculator(config.getActivationConfig(), config.getNetworkConstants()), new PeersInformation(channelManager, syncConfiguration, blockchain, RskMockFactory.getPeerScoringManager())
-        );
-        NodeMessageHandler handler = new NodeMessageHandler(config, processor, syncProcessor, channelManager, null, RskMockFactory.getPeerScoringManager(), new DummyBlockValidationRule());
+                new DifficultyCalculator(config.getActivationConfig(), config.getNetworkConstants()), new PeersInformation(channelManager, syncConfiguration, blockchain, RskMockFactory.getPeerScoringManager()),
+                mock(SyncMessager.class));
+        NodeMessageHandler handler = new NodeMessageHandler(config, processor, syncProcessor, channelManager, null, RskMockFactory.getPeerScoringManager(), new DummyBlockValidationRule(), mock(SyncMessager.class));
 
         return new SimpleAsyncNode(handler, syncProcessor, channelManager);
     }

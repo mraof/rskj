@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface SyncEventsHandler {
-    boolean sendSkeletonRequest(NodeID nodeID, long height);
-
     boolean sendBlockHashRequest(long height);
 
     boolean sendBlockHeadersRequest(ChunkDescriptor chunk);

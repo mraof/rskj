@@ -20,10 +20,10 @@ package co.rsk.net.messages;
 
 import co.rsk.config.RskSystemProperties;
 import co.rsk.net.*;
+import co.rsk.net.sync.SyncMessager;
 import co.rsk.scoring.EventType;
 import co.rsk.scoring.PeerScoringManager;
 import co.rsk.validators.BlockValidationRule;
-import com.sun.tools.javac.util.Assert;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockIdentifier;
 import org.ethereum.core.Transaction;
@@ -49,6 +49,7 @@ public class MessageVisitor {
     private final MessageChannel sender;
     private final PeerScoringManager peerScoringManager;
     private final RskSystemProperties config;
+    private final SyncMessager syncMessager;
     private final BlockValidationRule blockValidationRule;
     private final ChannelManager channelManager;
 
@@ -59,7 +60,7 @@ public class MessageVisitor {
                           PeerScoringManager peerScoringManager,
                           ChannelManager channelManager,
                           BlockValidationRule blockValidationRule,
-                          MessageChannel sender) {
+                          SyncMessager syncMessager, MessageChannel sender) {
 
         this.blockProcessor = blockProcessor;
         this.syncProcessor = syncProcessor;
@@ -69,6 +70,7 @@ public class MessageVisitor {
         this.blockValidationRule = blockValidationRule;
         this.sender = sender;
         this.config = config;
+        this.syncMessager = syncMessager;
     }
 
     /**
@@ -136,6 +138,7 @@ public class MessageVisitor {
     }
 
     public void apply(SkeletonRequestMessage message) {
+
         final long startNumber = message.getStartNumber();
         this.blockProcessor.processSkeletonRequest(sender, message.getId(), startNumber);
     }
@@ -163,7 +166,7 @@ public class MessageVisitor {
     }
 
     public void apply(SkeletonResponseMessage message) {
-        this.syncProcessor.processSkeletonResponse(sender, message);
+        syncMessager.receiveMessage(sender.getPeerNodeID(), message);
     }
 
     public void apply(BlockHeadersResponseMessage message) {

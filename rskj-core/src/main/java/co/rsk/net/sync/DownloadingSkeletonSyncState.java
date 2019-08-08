@@ -1,6 +1,5 @@
 package co.rsk.net.sync;
 
-import co.rsk.net.MessageChannel;
 import co.rsk.net.NodeID;
 import co.rsk.scoring.EventType;
 import org.ethereum.core.BlockIdentifier;
@@ -15,6 +14,7 @@ public class DownloadingSkeletonSyncState extends BaseSyncState {
     private final PeersInformation peersInformation;
     private final Map<NodeID, List<BlockIdentifier>> skeletons;
     private final Map<NodeID, Boolean> availables;
+    private final SyncMessager syncMessager;
     private final NodeID selectedPeerId;
     private long connectionPoint;
     private long expectedSkeletons;
@@ -24,9 +24,11 @@ public class DownloadingSkeletonSyncState extends BaseSyncState {
     public DownloadingSkeletonSyncState(SyncConfiguration syncConfiguration,
                                         SyncEventsHandler syncEventsHandler,
                                         PeersInformation peersInformation,
+                                        SyncMessager syncMessager,
                                         NodeID selectedPeerId,
                                         long connectionPoint) {
         super(syncEventsHandler, syncConfiguration);
+        this.syncMessager = syncMessager;
         this.selectedPeerId = selectedPeerId;
         this.connectionPoint = connectionPoint;
         this.skeletons = new HashMap<>();
@@ -37,14 +39,13 @@ public class DownloadingSkeletonSyncState extends BaseSyncState {
     }
 
     @Override
-    public void newSkeleton(List<BlockIdentifier> skeleton, MessageChannel peer) {
-        NodeID peerId = peer.getPeerNodeID();
-        boolean isSelectedPeer = peerId.equals(selectedPeerId);
+    public void newSkeleton(List<BlockIdentifier> skeleton, NodeID peerNodeID) {
+        boolean isSelectedPeer = peerNodeID.equals(selectedPeerId);
 
         // defensive programming: this should never happen
         if (skeleton.size() < 2) {
             peersInformation.reportEventWIthLog("Invalid skeleton received from node {}",
-                    peerId, EventType.INVALID_MESSAGE, peerId);
+                    peerNodeID, EventType.INVALID_MESSAGE, peerNodeID);
 
             // when the selected peer fails automatically all process restarts
             if (isSelectedPeer){
@@ -52,7 +53,7 @@ public class DownloadingSkeletonSyncState extends BaseSyncState {
                 return;
             }
         } else {
-            skeletons.put(peerId, skeleton);
+            skeletons.put(peerNodeID, skeleton);
         }
 
         expectedSkeletons--;
@@ -95,10 +96,15 @@ public class DownloadingSkeletonSyncState extends BaseSyncState {
     }
 
     private void trySendRequest(NodeID p) {
-        boolean sent = syncEventsHandler.sendSkeletonRequest(p, connectionPoint);
-        availables.put(p, sent);
-        if (!sent){
-            syncEventsHandler.onSyncIssue("Channel failed to sent on {} to {}", this.getClass(), p);
-        }
+        syncMessager.requestSkeleton(p, connectionPoint)
+                .thenAccept(response -> {
+                    availables.put(p, true);
+                    newSkeleton(response.getBlockIdentifiers(), p);
+                }).exceptionally( ex -> {
+                    availables.put(p, false);
+                    syncEventsHandler.onSyncIssue(
+                            "Channel failed to sent on {} to {}", this.getClass(), p);
+                    return null;
+                });
     }
 }

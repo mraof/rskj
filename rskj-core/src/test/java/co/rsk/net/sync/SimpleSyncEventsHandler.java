@@ -40,9 +40,6 @@ public class SimpleSyncEventsHandler implements SyncEventsHandler {
     public Long sendBodyRequest(@Nonnull BlockHeader header, NodeID peerId) { return 0L; }
 
     @Override
-    public boolean sendSkeletonRequest(NodeID nodeID, long height) { return true;}
-
-    @Override
     public void startDownloadingHeaders(Map<NodeID, List<BlockIdentifier>> skeletons, long connectionPoint) { }
 
     @Override

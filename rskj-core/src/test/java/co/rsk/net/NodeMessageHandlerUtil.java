@@ -5,6 +5,7 @@ import co.rsk.core.DifficultyCalculator;
 import co.rsk.core.bc.ConsensusValidationMainchainView;
 import co.rsk.net.sync.PeersInformation;
 import co.rsk.net.sync.SyncConfiguration;
+import co.rsk.net.sync.SyncMessager;
 import co.rsk.scoring.PeerScoringManager;
 import co.rsk.test.World;
 import co.rsk.validators.*;
@@ -37,11 +38,11 @@ public class NodeMessageHandlerUtil {
                 blockchain, mock(ConsensusValidationMainchainView.class), blockSyncService,
                 RskMockFactory.getChannelManager(), syncConfiguration, blockFactory, new DummyBlockValidationRule(),
                 new BlockCompositeRule(new BlockUnclesHashValidationRule(), new BlockRootValidationRule(config.getActivationConfig())),
-                DIFFICULTY_CALCULATOR, new PeersInformation(RskMockFactory.getChannelManager(), syncConfiguration, blockchain, RskMockFactory.getPeerScoringManager())
-        );
+                DIFFICULTY_CALCULATOR, new PeersInformation(RskMockFactory.getChannelManager(), syncConfiguration, blockchain, RskMockFactory.getPeerScoringManager()),
+                mock(SyncMessager.class));
         NodeBlockProcessor processor = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
 
-        return new NodeMessageHandler(config, processor, syncProcessor, new SimpleChannelManager(), null, RskMockFactory.getPeerScoringManager(), validationRule);
+        return new NodeMessageHandler(config, processor, syncProcessor, new SimpleChannelManager(), null, RskMockFactory.getPeerScoringManager(), validationRule, mock(SyncMessager.class));
     }
 
     public static NodeMessageHandler createHandlerWithSyncProcessor() {
@@ -77,8 +78,8 @@ public class NodeMessageHandlerUtil {
         SyncProcessor syncProcessor = new SyncProcessor(
                 blockchain, mock(ConsensusValidationMainchainView.class), blockSyncService, channelManager, syncConfiguration, blockFactory,
                 blockValidationRule, new BlockCompositeRule(new BlockUnclesHashValidationRule(),
-                new BlockRootValidationRule(config.getActivationConfig())), DIFFICULTY_CALCULATOR, new PeersInformation(channelManager, syncConfiguration, blockchain, peerScoringManager)
-        );
-        return new NodeMessageHandler(config, processor, syncProcessor, channelManager, null, null, blockValidationRule);
+                new BlockRootValidationRule(config.getActivationConfig())), DIFFICULTY_CALCULATOR, new PeersInformation(channelManager, syncConfiguration, blockchain, peerScoringManager),
+                mock(SyncMessager.class));
+        return new NodeMessageHandler(config, processor, syncProcessor, channelManager, null, null, blockValidationRule, mock(SyncMessager.class));
     }
 }

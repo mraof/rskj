@@ -53,7 +53,8 @@ public class SyncProcessor implements SyncEventsHandler {
                          BlockHeaderValidationRule blockHeaderValidationRule,
                          BlockCompositeRule blockValidationRule,
                          DifficultyCalculator difficultyCalculator,
-                         PeersInformation peersInformation) {
+                         PeersInformation peersInformation,
+                         SyncMessager syncMessager) {
         this.blockchain = blockchain;
         this.consensusValidationMainchainView = consensusValidationMainchainView;
         this.blockSyncService = blockSyncService;
@@ -72,8 +73,15 @@ public class SyncProcessor implements SyncEventsHandler {
         };
 
         this.peersInformation = peersInformation;
-        factory = new SyncStateFactory(syncConfiguration, this, peersInformation, blockSyncService,
-                blockchain, blockHeaderValidationRule, new DifficultyRule(difficultyCalculator), blockValidationRule);
+        factory = new SyncStateFactory(syncConfiguration,
+                this,
+                peersInformation,
+                blockSyncService,
+                blockchain,
+                blockHeaderValidationRule,
+                new DifficultyRule(difficultyCalculator),
+                blockValidationRule,
+                syncMessager);
         setSyncState(factory.newDecidingSyncState());
     }
 
@@ -81,20 +89,6 @@ public class SyncProcessor implements SyncEventsHandler {
         logger.debug("Receiving syncState from node {} block {} {}", sender.getPeerNodeID(), status.getBestBlockNumber(), HashUtil.shortHash(status.getBestBlockHash()));
         peersInformation.registerPeer(sender.getPeerNodeID()).setStatus(status);
         syncState.newPeerStatus();
-    }
-
-    public void processSkeletonResponse(MessageChannel peer, SkeletonResponseMessage message) {
-        logger.debug("Process skeleton response from node {}", peer.getPeerNodeID());
-        peersInformation.getOrRegisterPeer(peer.getPeerNodeID());
-
-        long messageId = message.getId();
-        MessageType messageType = message.getMessageType();
-        if (isPending(messageId, messageType)) {
-            removePendingMessage(messageId, messageType);
-            syncState.newSkeleton(message.getBlockIdentifiers(), peer);
-        } else {
-            peersInformation.reportEvent(peer.getPeerNodeID(), EventType.UNEXPECTED_MESSAGE);
-        }
     }
 
     public void processBlockHashResponse(MessageChannel peer, BlockHashResponseMessage message) {
@@ -164,13 +158,6 @@ public class SyncProcessor implements SyncEventsHandler {
         } else {
             peersInformation.reportEvent(peer.getPeerNodeID(), EventType.UNEXPECTED_MESSAGE);
         }
-    }
-
-    @Override
-    public boolean sendSkeletonRequest(NodeID nodeID, long height) {
-        logger.debug("Send skeleton request to node {} height {}", nodeID, height);
-        MessageWithId message = new SkeletonRequestMessage(++lastRequestId, height);
-        return sendMessage(nodeID, message);
     }
 
     @Override

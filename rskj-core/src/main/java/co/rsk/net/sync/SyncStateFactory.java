@@ -25,11 +25,17 @@ public class SyncStateFactory {
     private final BlockHeaderValidationRule blockHeaderValidationRule;
     private final BlockCompositeRule blockValidationRule;
     private final PeersInformation peersInformation;
+    private final SyncMessager syncMessager;
 
     public SyncStateFactory(SyncConfiguration syncConfiguration,
                             SyncEventsHandler syncEventsHandler,
-                            PeersInformation peersInformation, BlockSyncService blockSyncService, Blockchain blockchain, BlockHeaderValidationRule blockHeaderValidationRule,
-                            DependentBlockHeaderRule blockParentValidationRule, BlockCompositeRule blockValidationRule) {
+                            PeersInformation peersInformation,
+                            BlockSyncService blockSyncService,
+                            Blockchain blockchain,
+                            BlockHeaderValidationRule blockHeaderValidationRule,
+                            DependentBlockHeaderRule blockParentValidationRule,
+                            BlockCompositeRule blockValidationRule,
+                            SyncMessager syncMessager) {
         this.syncConfiguration = syncConfiguration;
         this.syncEventsHandler = syncEventsHandler;
         this.peersInformation = peersInformation;
@@ -38,6 +44,7 @@ public class SyncStateFactory {
         this.blockHeaderValidationRule = blockHeaderValidationRule;
         this.blockParentValidationRule = blockParentValidationRule;
         this.blockValidationRule = blockValidationRule;
+        this.syncMessager = syncMessager;
     }
 
     public SyncState newDecidingSyncState() {
@@ -57,7 +64,7 @@ public class SyncStateFactory {
     public SyncState newDownloadingSkeletonSyncState(NodeID selectedPeerId,
                                                      long connectionPoint) {
         return new DownloadingSkeletonSyncState(syncConfiguration,
-                syncEventsHandler, peersInformation, selectedPeerId, connectionPoint);
+                syncEventsHandler, peersInformation, syncMessager, selectedPeerId, connectionPoint);
     }
 
     public SyncState newDownloadingHeadersSyncState(ConsensusValidationMainchainView miningMainchainView,

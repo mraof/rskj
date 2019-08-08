@@ -1,6 +1,7 @@
 package co.rsk.net.sync;
 
 import co.rsk.net.MessageChannel;
+import co.rsk.net.NodeID;
 import co.rsk.net.messages.BodyResponseMessage;
 import org.ethereum.core.BlockHeader;
 import org.ethereum.core.BlockIdentifier;
@@ -21,7 +22,7 @@ public interface SyncState {
      */
     void newPeerStatus();
 
-    void newSkeleton(List<BlockIdentifier> skeletonChunk, MessageChannel peer);
+    void newSkeleton(List<BlockIdentifier> skeletonChunk, NodeID peerNodeID);
 
     void onEnter();
 

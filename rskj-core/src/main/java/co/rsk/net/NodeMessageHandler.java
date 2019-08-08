@@ -23,14 +23,13 @@ import co.rsk.core.BlockDifficulty;
 import co.rsk.core.bc.BlockChainStatus;
 import co.rsk.crypto.Keccak256;
 import co.rsk.net.messages.*;
+import co.rsk.net.sync.SyncMessager;
 import co.rsk.scoring.EventType;
 import co.rsk.scoring.PeerScoringManager;
 import co.rsk.validators.BlockValidationRule;
 import com.google.common.annotations.VisibleForTesting;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.Block;
-import org.ethereum.core.BlockIdentifier;
-import org.ethereum.core.Transaction;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.net.server.ChannelManager;
 import org.slf4j.Logger;
@@ -42,7 +41,6 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class NodeMessageHandler implements MessageHandler, Runnable {
     private static final Logger logger = LoggerFactory.getLogger("messagehandler");
@@ -56,6 +54,7 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
     private final ChannelManager channelManager;
     private final TransactionGateway transactionGateway;
     private final PeerScoringManager peerScoringManager;
+    private final SyncMessager syncMessager;
     private volatile long lastStatusSent = System.currentTimeMillis();
     private volatile long lastTickSent = System.currentTimeMillis();
 
@@ -73,13 +72,15 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
                               @Nullable final ChannelManager channelManager,
                               @Nullable final TransactionGateway transactionGateway,
                               @Nullable final PeerScoringManager peerScoringManager,
-                              @Nonnull BlockValidationRule blockValidationRule) {
+                              @Nonnull BlockValidationRule blockValidationRule,
+                              SyncMessager syncMessager) {
         this.config = config;
         this.channelManager = channelManager;
         this.blockProcessor = blockProcessor;
         this.syncProcessor = syncProcessor;
         this.transactionGateway = transactionGateway;
         this.blockValidationRule = blockValidationRule;
+        this.syncMessager = syncMessager;
         this.cleanMsgTimestamp = System.currentTimeMillis();
         this.peerScoringManager = peerScoringManager;
     }
@@ -101,7 +102,7 @@ public class NodeMessageHandler implements MessageHandler, Runnable {
                 peerScoringManager,
                 channelManager,
                 blockValidationRule,
-                sender);
+                syncMessager, sender);
         message.accept(mv);
 
         loggerMessageProcess.debug("Message[{}] processed after [{}] nano.", message.getMessageType(), System.nanoTime() - start);
