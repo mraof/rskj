@@ -139,7 +139,7 @@ public class SyncPool implements InternalService {
         }
 
         String shortPeerId = peer.getPeerIdShort();
-        logger.trace("Peer {}: adding", shortPeerId);
+        logger.trace("DecodedPeer {}: adding", shortPeerId);
 
         synchronized (peers) {
             peers.put(peer.getNodeId(), peer);
@@ -150,7 +150,7 @@ public class SyncPool implements InternalService {
         }
 
         ethereumListener.onPeerAddedToSyncPool(peer);
-        logger.info("Peer {}: added to pool", shortPeerId);
+        logger.info("DecodedPeer {}: added to pool", shortPeerId);
     }
 
     public void remove(Channel peer) {
@@ -180,13 +180,13 @@ public class SyncPool implements InternalService {
             return;
         }
 
-        logger.info("Peer {}: disconnected", peer.getPeerIdShort());
+        logger.info("DecodedPeer {}: disconnected", peer.getPeerIdShort());
     }
 
     private void connect(Node node) {
         if (logger.isTraceEnabled()) {
             logger.trace(
-                "Peer {}: initiate connection",
+                "DecodedPeer {}: initiate connection",
                 node.getHexIdShort()
             );
         }
@@ -194,7 +194,7 @@ public class SyncPool implements InternalService {
         if (isInUse(node.getHexId())) {
             if (logger.isTraceEnabled()) {
                 logger.trace(
-                    "Peer {}: connection already initiated",
+                    "DecodedPeer {}: connection already initiated",
                     node.getHexIdShort()
                 );
             }
@@ -323,7 +323,7 @@ public class SyncPool implements InternalService {
         synchronized (peers) {
             for (Channel peer : peers.values()) {
                 if (peer.getSyncStats().secondsSinceLastUpdate() > config.peerChannelReadTimeout()) {
-                    logger.info("Peer {}: no response after {} seconds", peer.getPeerIdShort(), config.peerChannelReadTimeout());
+                    logger.info("DecodedPeer {}: no response after {} seconds", peer.getPeerIdShort(), config.peerChannelReadTimeout());
                     peer.dropConnection();
                 }
             }

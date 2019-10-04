@@ -27,19 +27,20 @@ import org.bouncycastle.util.encoders.Hex;
 import java.net.InetAddress;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * This class models a peer in the network
  */
-public class Peer {
+public class DecodedPeer {
 
     private final InetAddress address;
     private final int port;
     private final String peerId;
     private final List<Capability> capabilities;
 
-    public Peer(InetAddress ip, int port, String peerId) {
+    public DecodedPeer(InetAddress ip, int port, String peerId) {
         this.address = ip;
         this.port = port;
         this.peerId = peerId;
@@ -59,7 +60,7 @@ public class Peer {
     }
 
     public List<Capability> getCapabilities() {
-        return capabilities;
+        return new LinkedList<>(capabilities);
     }
 
     public byte[] getEncoded() {
@@ -68,7 +69,6 @@ public class Peer {
         byte[] peerId = RLP.encodeElement(Hex.decode(this.peerId));
         byte[][] encodedCaps = new byte[this.capabilities.size()][];
         for (int i = 0; i < this.capabilities.size() * 2; i++) {
-            encodedCaps[i] = RLP.encodeString(this.capabilities.get(i).getName());
             encodedCaps[i] = RLP.encodeByte(this.capabilities.get(i).getVersion());
         }
         byte[] capabilities = RLP.encodeList(encodedCaps);
@@ -92,7 +92,7 @@ public class Peer {
             return false;
         }
 
-        Peer peerData = (Peer) obj;
+        DecodedPeer peerData = (DecodedPeer) obj;
         return peerData.peerId.equals(this.peerId)
                 || this.getAddress().equals(peerData.getAddress());
     }

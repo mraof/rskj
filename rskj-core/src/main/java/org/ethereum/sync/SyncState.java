@@ -30,6 +30,6 @@ public enum SyncState {
     HASH_RETRIEVING,
     BLOCK_RETRIEVING,
 
-    // Peer
+    // DecodedPeer
     DONE_HASH_RETRIEVING
 }
