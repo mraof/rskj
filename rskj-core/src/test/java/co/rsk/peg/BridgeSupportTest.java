@@ -3599,7 +3599,7 @@ public class BridgeSupportTest {
     }
 
     @Test
-    public void voteFeePerKbChange_unsuccessfulVote() {
+    public void voteFeePerKbChange_unsuccessfulVote_unauthorized() {
         Repository repositoryMock = mock(Repository.class);
         BridgeStorageProvider provider = mock(BridgeStorageProvider.class);
         Transaction tx = mock(Transaction.class);
@@ -3622,7 +3622,7 @@ public class BridgeSupportTest {
     }
 
     @Test
-    public void voteFeePerKbChange_successfulVote() {
+    public void voteFeePerKbChange_unsuccessfulVote_negativeFeePerKb() {
         Repository repositoryMock = mock(Repository.class);
         BridgeStorageProvider provider = mock(BridgeStorageProvider.class);
         Transaction tx = mock(Transaction.class);
@@ -3644,14 +3644,75 @@ public class BridgeSupportTest {
                 .thenReturn(2);
 
         BridgeSupport bridgeSupport = getBridgeSupport(constants, provider, repositoryMock, null);
-        assertThat(bridgeSupport.voteFeePerKbChange(tx, Coin.CENT), is(1));
         assertThat(bridgeSupport.voteFeePerKbChange(tx, Coin.NEGATIVE_SATOSHI), is(-1));
         assertThat(bridgeSupport.voteFeePerKbChange(tx, Coin.ZERO), is(-1));
         verify(provider, never()).setFeePerKb(any());
     }
 
     @Test
+    public void voteFeePerKbChange_unsuccessfulVote_excessiveFeePerKb() {
+        final long MAX_FEE_PER_KB = 5_000_000L;
+        Repository repositoryMock = mock(Repository.class);
+        BridgeStorageProvider provider = mock(BridgeStorageProvider.class);
+        Transaction tx = mock(Transaction.class);
+        BridgeConstants constants = mock(BridgeConstants.class);
+        AddressBasedAuthorizer authorizer = mock(AddressBasedAuthorizer.class);
+
+        byte[] senderBytes = ByteUtil.leftPadBytes(new byte[]{0x43}, 20);
+        when(provider.getFeePerKbElection(any()))
+                .thenReturn(new ABICallElection(authorizer));
+        when(tx.getSender())
+                .thenReturn(new RskAddress(senderBytes));
+        when(constants.getFeePerKbChangeAuthorizer())
+                .thenReturn(authorizer);
+        when(authorizer.isAuthorized(tx))
+                .thenReturn(true);
+        when(authorizer.isAuthorized(tx.getSender()))
+                .thenReturn(true);
+        when(authorizer.getRequiredAuthorizedKeys())
+                .thenReturn(2);
+        when(constants.getMaxFeePerKb())
+                .thenReturn(Coin.valueOf(MAX_FEE_PER_KB));
+
+        BridgeSupport bridgeSupport = getBridgeSupport(constants, provider, repositoryMock, null);
+        assertThat(bridgeSupport.voteFeePerKbChange(tx, Coin.valueOf(MAX_FEE_PER_KB)), is(1));
+        assertThat(bridgeSupport.voteFeePerKbChange(tx, Coin.valueOf(MAX_FEE_PER_KB + 1)), is(-2));
+        verify(provider, never()).setFeePerKb(any());
+    }
+
+    @Test
+    public void voteFeePerKbChange_successfulVote() {
+        final long MAX_FEE_PER_KB = 5_000_000L;
+        Repository repositoryMock = mock(Repository.class);
+        BridgeStorageProvider provider = mock(BridgeStorageProvider.class);
+        Transaction tx = mock(Transaction.class);
+        BridgeConstants constants = mock(BridgeConstants.class);
+        AddressBasedAuthorizer authorizer = mock(AddressBasedAuthorizer.class);
+
+        byte[] senderBytes = ByteUtil.leftPadBytes(new byte[]{0x43}, 20);
+        when(provider.getFeePerKbElection(any()))
+                .thenReturn(new ABICallElection(authorizer));
+        when(tx.getSender())
+                .thenReturn(new RskAddress(senderBytes));
+        when(constants.getFeePerKbChangeAuthorizer())
+                .thenReturn(authorizer);
+        when(authorizer.isAuthorized(tx))
+                .thenReturn(true);
+        when(authorizer.isAuthorized(tx.getSender()))
+                .thenReturn(true);
+        when(authorizer.getRequiredAuthorizedKeys())
+                .thenReturn(2);
+        when(constants.getMaxFeePerKb())
+                .thenReturn(Coin.valueOf(MAX_FEE_PER_KB));
+
+        BridgeSupport bridgeSupport = getBridgeSupport(constants, provider, repositoryMock, null);
+        assertThat(bridgeSupport.voteFeePerKbChange(tx, Coin.CENT), is(1));
+        verify(provider, never()).setFeePerKb(any());
+    }
+
+    @Test
     public void voteFeePerKbChange_successfulVoteWithFeeChange() {
+        final long MAX_FEE_PER_KB = 5_000_000L;
         Repository repositoryMock = mock(Repository.class);
         BridgeStorageProvider provider = mock(BridgeStorageProvider.class);
         Transaction tx = mock(Transaction.class);
@@ -3671,6 +3732,8 @@ public class BridgeSupportTest {
                 .thenReturn(true);
         when(authorizer.getRequiredAuthorizedKeys())
                 .thenReturn(1);
+        when(constants.getMaxFeePerKb())
+                .thenReturn(Coin.valueOf(MAX_FEE_PER_KB));
 
         BridgeSupport bridgeSupport = getBridgeSupport(constants, provider, repositoryMock, null);
         assertThat(bridgeSupport.voteFeePerKbChange(tx, Coin.CENT), is(1));
