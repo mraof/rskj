@@ -22,6 +22,8 @@ import org.ethereum.db.IndexedBlockStore;
 import org.ethereum.util.ByteUtil;
 import org.mapdb.DB;
 import org.mapdb.Serializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +36,7 @@ import static org.ethereum.db.IndexedBlockStore.BLOCK_INFO_SERIALIZER;
  */
 public class MapDBBlocksIndex implements BlocksIndex {
 
+    private static final Logger logger = LoggerFactory.getLogger("general");
     private static final String MAX_BLOCK_NUMBER_KEY = "max_block";
 
     private final Map<Long, List<IndexedBlockStore.BlockInfo>> index;
@@ -60,6 +63,19 @@ public class MapDBBlocksIndex implements BlocksIndex {
             long maxBlockNumber = (long) index.size() - 1;
             metadata.put(MAX_BLOCK_NUMBER_KEY,  ByteUtil.longToBytes(maxBlockNumber));
         }
+
+        // Resilience fix in case the metadata doesn't match the real value. Should be removed if no cases are found.
+        // TODO(im) remove if no cases are found.
+        long maxNumber = getMaxNumber();
+        if (maxNumber != -1 && maxNumber != index.size()) {
+            logger.warn("Max number doesn't match index maxNumber: {}, index size: {}",
+                    maxNumber,
+                    index.size());
+            long maxBlockNumber = (long) index.size() - 1;
+            metadata.put(MAX_BLOCK_NUMBER_KEY, ByteUtil.longToBytes(maxBlockNumber));
+        }
+
+        indexDB.commit();
     }
 
     @Override
