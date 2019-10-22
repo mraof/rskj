@@ -1,7 +1,7 @@
 package co.rsk.net.light;
 
 import co.rsk.net.MessageChannel;
-import co.rsk.net.light.messages.TransactionIdMessage;
+import co.rsk.net.light.messages.TransactionIdResponseMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +11,7 @@ public class LightProcessor {
     public LightProcessor() {
     }
 
-    public void processTransactionIdMessage(MessageChannel sender, TransactionIdMessage message) {
-        logger.debug("transactionID Message Recieved");
+    public void processTransactionIdResponseMessage(MessageChannel sender, TransactionIdResponseMessage message) {
+        logger.debug("transactionID response Message Recieved");
     }
 }

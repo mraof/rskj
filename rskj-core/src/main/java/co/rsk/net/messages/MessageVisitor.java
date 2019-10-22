@@ -22,7 +22,7 @@ import co.rsk.config.RskSystemProperties;
 import co.rsk.crypto.Keccak256;
 import co.rsk.net.*;
 import co.rsk.net.light.LightProcessor;
-import co.rsk.net.light.messages.TransactionIdMessage;
+import co.rsk.net.light.messages.TransactionIdResponseMessage;
 import co.rsk.scoring.EventType;
 import co.rsk.scoring.PeerScoringManager;
 import co.rsk.validators.BlockValidationRule;
@@ -219,8 +219,8 @@ public class MessageVisitor {
         loggerMessageProcess.debug("Tx message process finished after [{}] nano.", System.nanoTime() - start);
     }
 
-    public void apply(TransactionIdMessage message) {
-        lightProcessor.processTransactionIdMessage(sender, message);
+    public void apply(TransactionIdResponseMessage message) {
+        lightProcessor.processTransactionIdResponseMessage(sender, message);
     }
 
     private void recordEvent(MessageChannel sender, EventType event) {

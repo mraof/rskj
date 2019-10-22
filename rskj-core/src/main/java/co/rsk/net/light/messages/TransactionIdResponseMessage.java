@@ -26,7 +26,7 @@ import co.rsk.net.messages.MessageVisitor;
  * Created by Sebastian Sicardi on 7/22/2016.
  */
 
-public class TransactionIdMessage extends Message {
+public class TransactionIdResponseMessage extends Message {
     @Override
     public MessageType getMessageType() {
         return null;
