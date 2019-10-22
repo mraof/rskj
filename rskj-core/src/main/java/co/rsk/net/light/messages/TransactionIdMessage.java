@@ -39,6 +39,6 @@ public class TransactionIdMessage extends Message {
 
     @Override
     public void accept(MessageVisitor v) {
-
+        v.apply(this);
     }
 }

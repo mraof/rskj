@@ -21,6 +21,7 @@ package co.rsk.net;
 import co.rsk.config.InternalService;
 import co.rsk.config.RskSystemProperties;
 import co.rsk.crypto.Keccak256;
+import co.rsk.net.light.LightProcessor;
 import co.rsk.net.messages.*;
 import co.rsk.scoring.EventType;
 import co.rsk.scoring.PeerScoringManager;
@@ -46,6 +47,7 @@ public class NodeMessageHandler implements MessageHandler, InternalService, Runn
     private final RskSystemProperties config;
     private final BlockProcessor blockProcessor;
     private final SyncProcessor syncProcessor;
+    private final LightProcessor lightProcessor;
     private final ChannelManager channelManager;
     private final TransactionGateway transactionGateway;
     private final PeerScoringManager peerScoringManager;
@@ -77,6 +79,7 @@ public class NodeMessageHandler implements MessageHandler, InternalService, Runn
         this.channelManager = channelManager;
         this.blockProcessor = blockProcessor;
         this.syncProcessor = syncProcessor;
+        this.lightProcessor = new LightProcessor();
         this.transactionGateway = transactionGateway;
         this.blockValidationRule = blockValidationRule;
         this.statusResolver = statusResolver;
@@ -97,6 +100,7 @@ public class NodeMessageHandler implements MessageHandler, InternalService, Runn
         MessageVisitor mv = new MessageVisitor(config,
                 blockProcessor,
                 syncProcessor,
+                lightProcessor,
                 transactionGateway,
                 peerScoringManager,
                 channelManager,
