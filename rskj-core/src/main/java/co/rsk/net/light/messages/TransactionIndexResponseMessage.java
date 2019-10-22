@@ -23,14 +23,22 @@ import co.rsk.net.messages.MessageType;
 import co.rsk.net.messages.MessageVisitor;
 
 /**
- * Created by Sebastian Sicardi on 7/22/2016.
+ * Created by Sebastian Sicardi on 22/10/2019.
  */
 
-public class TransactionIdResponseMessage extends Message {
-    @Override
-    public MessageType getMessageType() {
-        return null;
+public class TransactionIndexResponseMessage extends Message {
+    private byte[] blockNumber;
+    private byte[] blockHash;
+    private byte[] txIndex;
+
+    public TransactionIndexResponseMessage(byte[] blockNumber, byte[] blockHash, byte[] txIndex) {
+        this.blockNumber = blockNumber;
+        this.blockHash = blockHash;
+        this.txIndex = txIndex;
     }
+
+    @Override
+    public MessageType getMessageType() { return MessageType.TRANSACTION_INDEX_RESPONSE_MESSAGE; }
 
     @Override
     public byte[] getEncodedMessage() {

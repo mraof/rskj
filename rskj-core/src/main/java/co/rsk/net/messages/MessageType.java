@@ -20,6 +20,8 @@ package co.rsk.net.messages;
 
 import co.rsk.core.BlockDifficulty;
 import co.rsk.net.Status;
+import co.rsk.net.light.messages.TransactionIndexRequestMessage;
+import co.rsk.net.light.messages.TransactionIndexResponseMessage;
 import co.rsk.remasc.RemascTransaction;
 import org.ethereum.core.*;
 import org.ethereum.util.RLP;
@@ -230,6 +232,24 @@ public enum MessageType {
         public Message createMessage(BlockFactory blockFactory, RLPList list) {
             byte[] hash = list.get(0).getRLPData();
             return new NewBlockHashMessage(hash);
+        }
+    },
+
+    TRANSACTION_INDEX_REQUEST_MESSAGE(18) {
+        @Override
+        public Message createMessage(BlockFactory blockFactory, RLPList list) {
+            byte[] txHash = list.get(0).getRLPData();
+            return new TransactionIndexRequestMessage(txHash);
+        }
+    },
+
+    TRANSACTION_INDEX_RESPONSE_MESSAGE(19) {
+        @Override
+        public Message createMessage(BlockFactory blockFactory, RLPList list) {
+            byte[] blockNumber = list.get(0).getRLPData();
+            byte[] blockHash = list.get(1).getRLPData();
+            byte[] txIndex = list.get(2).getRLPData();
+            return new TransactionIndexResponseMessage(blockNumber,blockHash,txIndex);
         }
     };
 
