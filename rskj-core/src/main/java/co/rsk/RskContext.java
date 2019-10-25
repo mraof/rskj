@@ -42,6 +42,7 @@ import co.rsk.net.eth.MessageFilter;
 import co.rsk.net.eth.MessageRecorder;
 import co.rsk.net.eth.RskWireProtocol;
 import co.rsk.net.eth.WriterMessageRecorder;
+import co.rsk.net.light.LightProcessor;
 import co.rsk.net.sync.PeersInformation;
 import co.rsk.net.sync.SyncConfiguration;
 import co.rsk.peg.BridgeSupportFactory;
@@ -172,6 +173,7 @@ public class RskContext implements NodeBootstrapper {
     private PeerScoringManager peerScoringManager;
     private NodeBlockProcessor nodeBlockProcessor;
     private SyncProcessor syncProcessor;
+    private LightProcessor lightProcessor;
     private BlockSyncService blockSyncService;
     private SyncPool syncPool;
     private Web3 web3;
@@ -1465,6 +1467,7 @@ public class RskContext implements NodeBootstrapper {
                     getRskSystemProperties(),
                     getNodeBlockProcessor(),
                     getSyncProcessor(),
+                    getLightProcessor(),
                     getChannelManager(),
                     getTransactionGateway(),
                     getPeerScoringManager(),
@@ -1473,6 +1476,13 @@ public class RskContext implements NodeBootstrapper {
         }
 
         return nodeMessageHandler;
+    }
+
+    private LightProcessor getLightProcessor() {
+        if (lightProcessor == null) {
+            lightProcessor = new LightProcessor(getBlockchain());
+        }
+        return lightProcessor;
     }
 
     private StatusResolver getStatusResolver() {

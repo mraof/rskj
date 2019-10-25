@@ -39,7 +39,7 @@ public class NodeMessageHandlerUtil {
                 mock(Genesis.class));
         NodeBlockProcessor processor = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
 
-        return new NodeMessageHandler(config, processor, syncProcessor, new SimpleChannelManager(), null, RskMockFactory.getPeerScoringManager(), validationRule, mock(StatusResolver.class));
+        return new NodeMessageHandler(config, processor, syncProcessor, null, new SimpleChannelManager(), null, RskMockFactory.getPeerScoringManager(), validationRule, mock(StatusResolver.class));
     }
 
     public static NodeMessageHandler createHandlerWithSyncProcessor(SyncConfiguration syncConfiguration, ChannelManager channelManager) {
@@ -69,6 +69,6 @@ public class NodeMessageHandlerUtil {
                 new PeersInformation(channelManager, syncConfiguration, blockchain, peerScoringManager),
                 mock(Genesis.class)
         );
-        return new NodeMessageHandler(config, processor, syncProcessor, channelManager, null, null, blockValidationRule, mock(StatusResolver.class));
+        return new NodeMessageHandler(config, processor, syncProcessor, null, channelManager, null, null, blockValidationRule, mock(StatusResolver.class));
     }
 }

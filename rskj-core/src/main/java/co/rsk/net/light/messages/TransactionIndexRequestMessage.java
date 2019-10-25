@@ -21,16 +21,23 @@ package co.rsk.net.light.messages;
 import co.rsk.net.messages.Message;
 import co.rsk.net.messages.MessageType;
 import co.rsk.net.messages.MessageVisitor;
+import co.rsk.net.messages.MessageWithId;
 
 /**
  * Created by Sebastian Sicardi on 22/10/2019.
  */
 
-public class TransactionIndexRequestMessage extends Message {
+public class TransactionIndexRequestMessage extends MessageWithId {
     private byte[] hash;
+    private long id;
 
-    public TransactionIndexRequestMessage(byte[] hash) {
+    public TransactionIndexRequestMessage(long id, byte[] hash) {
         this.hash = hash;
+        this.id = id;
+    }
+
+    public byte[] getHash() {
+        return hash;
     }
 
     @Override
@@ -38,6 +45,16 @@ public class TransactionIndexRequestMessage extends Message {
 
     @Override
     public byte[] getEncodedMessage() {
+        return new byte[0];
+    }
+
+    @Override
+    public long getId() {
+        return this.id;
+    }
+
+    @Override
+    protected byte[] getEncodedMessageWithoutId() {
         return new byte[0];
     }
 

@@ -238,18 +238,22 @@ public enum MessageType {
     TRANSACTION_INDEX_REQUEST_MESSAGE(18) {
         @Override
         public Message createMessage(BlockFactory blockFactory, RLPList list) {
-            byte[] txHash = list.get(0).getRLPData();
-            return new TransactionIndexRequestMessage(txHash);
+            byte[] rlpId = list.get(0).getRLPData();
+            long id = rlpId == null ? 0 : BigIntegers.fromUnsignedByteArray(rlpId).longValue();
+            byte[] txHash = list.get(1).getRLPData();
+            return new TransactionIndexRequestMessage(id, txHash);
         }
     },
 
     TRANSACTION_INDEX_RESPONSE_MESSAGE(19) {
         @Override
         public Message createMessage(BlockFactory blockFactory, RLPList list) {
+            byte[] rlpId = list.get(0).getRLPData();
+            long id = rlpId == null ? 0 : BigIntegers.fromUnsignedByteArray(rlpId).longValue();
             byte[] blockNumber = list.get(0).getRLPData();
             byte[] blockHash = list.get(1).getRLPData();
             byte[] txIndex = list.get(2).getRLPData();
-            return new TransactionIndexResponseMessage(blockNumber,blockHash,txIndex);
+            return new TransactionIndexResponseMessage(id, blockNumber,blockHash,txIndex);
         }
     };
 

@@ -65,11 +65,13 @@ public class NodeMessageHandler implements MessageHandler, InternalService, Runn
     private volatile boolean stopped;
 
     /**
+     * @param lightProcessor
      * @param statusResolver
      */
     public NodeMessageHandler(RskSystemProperties config,
                               final BlockProcessor blockProcessor,
                               final SyncProcessor syncProcessor,
+                              LightProcessor lightProcessor,
                               @Nullable final ChannelManager channelManager,
                               @Nullable final TransactionGateway transactionGateway,
                               @Nullable final PeerScoringManager peerScoringManager,
@@ -79,7 +81,7 @@ public class NodeMessageHandler implements MessageHandler, InternalService, Runn
         this.channelManager = channelManager;
         this.blockProcessor = blockProcessor;
         this.syncProcessor = syncProcessor;
-        this.lightProcessor = new LightProcessor();
+        this.lightProcessor = lightProcessor;
         this.transactionGateway = transactionGateway;
         this.blockValidationRule = blockValidationRule;
         this.statusResolver = statusResolver;
