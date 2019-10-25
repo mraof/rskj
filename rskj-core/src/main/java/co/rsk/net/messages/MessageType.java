@@ -235,24 +235,29 @@ public enum MessageType {
         }
     },
 
-    TRANSACTION_INDEX_REQUEST_MESSAGE(18) {
+    TRANSACTION_INDEX_REQUEST_MESSAGE(103) {
         @Override
         public Message createMessage(BlockFactory blockFactory, RLPList list) {
+            RLPList message = (RLPList)RLP.decode2(list.get(1).getRLPData()).get(0);
+
             byte[] rlpId = list.get(0).getRLPData();
             long id = rlpId == null ? 0 : BigIntegers.fromUnsignedByteArray(rlpId).longValue();
-            byte[] txHash = list.get(1).getRLPData();
+            byte[] txHash = message.get(0).getRLPData();
             return new TransactionIndexRequestMessage(id, txHash);
         }
     },
 
-    TRANSACTION_INDEX_RESPONSE_MESSAGE(19) {
+    TRANSACTION_INDEX_RESPONSE_MESSAGE(104) {
         @Override
         public Message createMessage(BlockFactory blockFactory, RLPList list) {
+            RLPList message = (RLPList)RLP.decode2(list.get(1).getRLPData()).get(0);
+
             byte[] rlpId = list.get(0).getRLPData();
             long id = rlpId == null ? 0 : BigIntegers.fromUnsignedByteArray(rlpId).longValue();
-            byte[] blockNumber = list.get(0).getRLPData();
-            byte[] blockHash = list.get(1).getRLPData();
-            byte[] txIndex = list.get(2).getRLPData();
+
+            byte[] blockNumber = message.get(0).getRLPData();
+            byte[] blockHash = message.get(1).getRLPData();
+            byte[] txIndex = message.get(2).getRLPData();
             return new TransactionIndexResponseMessage(id, blockNumber,blockHash,txIndex);
         }
     };

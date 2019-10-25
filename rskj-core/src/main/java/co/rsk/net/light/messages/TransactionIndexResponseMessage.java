@@ -22,6 +22,7 @@ import co.rsk.net.messages.Message;
 import co.rsk.net.messages.MessageType;
 import co.rsk.net.messages.MessageVisitor;
 import co.rsk.net.messages.MessageWithId;
+import org.ethereum.util.RLP;
 
 /**
  * Created by Sebastian Sicardi on 22/10/2019.
@@ -34,19 +35,14 @@ public class TransactionIndexResponseMessage extends MessageWithId {
     private byte[] txIndex;
 
     public TransactionIndexResponseMessage(long id, byte[] blockNumber, byte[] blockHash, byte[] txIndex) {
+        this.id = id;
         this.blockNumber = blockNumber;
         this.blockHash = blockHash;
         this.txIndex = txIndex;
-        this.id = id;
     }
 
     @Override
     public MessageType getMessageType() { return MessageType.TRANSACTION_INDEX_RESPONSE_MESSAGE; }
-
-    @Override
-    public byte[] getEncodedMessage() {
-        return new byte[0];
-    }
 
     @Override
     public long getId() {
@@ -66,8 +62,12 @@ public class TransactionIndexResponseMessage extends MessageWithId {
     }
 
     @Override
-    protected byte[] getEncodedMessageWithoutId() {
-        return new byte[0];
+    public byte[] getEncodedMessageWithoutId() {
+        byte[] rlpBlockHash = RLP.encodeElement(this.blockHash);
+        byte[] rlpBlockNumber = RLP.encodeElement(this.blockNumber);
+        byte[] rlpTxIndex = RLP.encodeElement(this.txIndex);
+
+        return RLP.encodeList(rlpBlockHash, rlpBlockNumber,rlpTxIndex);
     }
 
     @Override
